@@ -55,6 +55,6 @@ So it was trying to fetch 0xF8DFFBF8? There is nothing there.
 
 ### 02:38
 
-![](cm4fw_007_bfar_fault_address.jpg)
+![](cm4fw_008_tickfreq_crash_fpic.jpg)
 
-![](cm4fw_007_bfar_fault_address.jpg)
+![](cm4fw_009_tickfreq_OK_non-fpic.jpg)
