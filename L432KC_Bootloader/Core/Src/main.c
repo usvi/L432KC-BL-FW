@@ -20,42 +20,39 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+static void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-/* USER CODE BEGIN PFP */
+static void vL432kc_DeInitAndJump(const uint32_t u32JumpAddress);
 
-/* USER CODE END PFP */
+// From https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+typedef void (application_t)(void);
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
+// From https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+typedef struct
+{
+    uint32_t    stack_addr;     // Stack Pointer
+    application_t*  func_p;        // Program Counter
+} JumpStruct;
 
-/* USER CODE END 0 */
+
+static void vL432kc_DeInitAndJump(const uint32_t u32JumpAddress)
+{
+  // Most parts from https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+  const JumpStruct* pxJumpVector = (JumpStruct*)u32JumpAddress;
+
+  HAL_GPIO_DeInit(LD3_GPIO_Port, LD3_Pin);
+  __HAL_RCC_GPIOC_CLK_DISABLE();
+  __HAL_RCC_GPIOA_CLK_DISABLE();
+  __HAL_RCC_GPIOB_CLK_DISABLE();
+  HAL_RCC_DeInit();
+  HAL_DeInit();
+  SysTick->CTRL = 0;
+  SysTick->LOAD = 0;
+  SysTick->VAL = 0;
+
+  // Actual jump
+  asm("msr msp, %0; bx %1;" : : "r"(pxJumpVector->stack_addr), "r"(pxJumpVector->func_p));
+}
 
 /**
   * @brief  The application entry point.
@@ -79,16 +76,14 @@ int main(void)
   // Leave LED off
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
   // Deinit and jump
-  while (1)
-  {
-  }
+  vL432kc_DeInitAndJump(0); // 0 here => bootloader jumps to itself :)
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
+static void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
