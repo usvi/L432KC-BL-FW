@@ -46,6 +46,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32JumpAddress)
   __HAL_RCC_GPIOB_CLK_DISABLE();
   HAL_RCC_DeInit();
   HAL_DeInit();
+  __disable_irq();
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
