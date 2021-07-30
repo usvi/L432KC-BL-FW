@@ -63,41 +63,22 @@ static void MX_GPIO_Init(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  uint32_t u32LedCounter = 0;
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
+  __enable_irq();
   MX_GPIO_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+    u32LedCounter++;
 
-    /* USER CODE BEGIN 3 */
+    if ((u32LedCounter % 0xF0000) == 0)
+    {
+      u32LedCounter = 0;
+      HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+    }
   }
-  /* USER CODE END 3 */
 }
 
 /**
