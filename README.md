@@ -7,9 +7,9 @@ This repository is for researching how to get STM32 NUCLEO-L432KC evaluation boa
 
 Quick statuses
 
-Bootloader: **Not implemented**
+Bootloader: **Works. Can jump to application firmware and to even itself :D**
 
-Firmware: **Not implemented**
+Firmware: **Does not work. Temporarily running from first flash address also with -fPIC on, crashes, investigating**
 
 
 # Research
