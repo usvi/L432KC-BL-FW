@@ -50,3 +50,5 @@ Committed the PIC version. Yes, it crashes, investigating crash.
 ![](cm4fw_006_bfar_overview.jpg)
 
 ![](cm4fw_007_bfar_fault_address.jpg)
+
+So it was trying to fetch 0xF8DFFBF8? There is nothing there.
