@@ -30,3 +30,8 @@ I temporarily put main firmware to 0x8000000, adjusted linker script to the addr
 Now main firmware starts directly from start and of course always when pressing reset. Lets experiment with -fPIC.
 
 Unbelievable. It ends in hardfault!
+
+## 2021-07-31
+
+### 1:34
+Committed the PIC version. Yes, it crashes, investigating crash.
