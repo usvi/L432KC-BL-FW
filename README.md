@@ -35,3 +35,6 @@ Unbelievable. It ends in hardfault!
 
 ### 1:34
 Committed the PIC version. Yes, it crashes, investigating crash.
+
+### 2:12
+![](cm4fw_001_hardfault_cfsr.jpg)
