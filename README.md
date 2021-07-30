@@ -11,5 +11,22 @@ Bootloader: **Not implemented**
 
 Firmware: **Not implemented**
 
-# General research
 
+# Research
+
+## 2021-07-30
+### 23:33
+I have created a bootloader which jumps to 0x8005000. I have made a main firmware and I have configured it to run from 0x8005000. I'm now researching a way to make it relocatable.
+
+Bootloader boots the main firmware from static location just fine.
+
+I'm able to run the main firmware in debugger directly, passing the bootloader. This is great.
+
+But if I now enable Position Indementend Code / -fPIC from project properties => C/C++ Build => Settings => Tool Settings => MCU GCC Compiler => Miscellaneous , the main firmware fails. Good, now I have a point to debug "bit by bit". At least now I know that -fPIC has an effect.
+
+### 23:43
+I temporarily put main firmware to 0x8000000, adjusted linker script to the address and disabled vector table offset magic in system_stm32l4xx.c . Not committed, at least not yet, just experimenting.
+
+Now main firmware starts directly from start and of course always when pressing reset. Lets experiment with -fPIC.
+
+Unbelievable. It ends in hardfault!
