@@ -33,10 +33,10 @@ Unbelievable. It ends in hardfault!
 
 ## 2021-07-31
 
-### 1:34
+### 01:34
 Committed the PIC version. Yes, it crashes, investigating crash.
 
-### 2:12
+### 02:12
 ![](cm4fw_001_hardfault_cfsr.jpg)
 
 ![](cm4fw_002_cfsr_address.jpg)
@@ -52,3 +52,9 @@ Committed the PIC version. Yes, it crashes, investigating crash.
 ![](cm4fw_007_bfar_fault_address.jpg)
 
 So it was trying to fetch 0xF8DFFBF8? There is nothing there.
+
+### 02:38
+
+![](cm4fw_007_bfar_fault_address.jpg)
+
+![](cm4fw_007_bfar_fault_address.jpg)
