@@ -63,7 +63,7 @@ static void MX_GPIO_Init(void);
   */
 int main(void)
 {
-#warning Temporarily put firmware to start from first flash address and enabled PIC, crashes to hardfault
+#warning Temporarily put firmware to start from first flash address and enabled PIC, works to some extend
   uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();

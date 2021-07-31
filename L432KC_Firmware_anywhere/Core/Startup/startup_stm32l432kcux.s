@@ -95,6 +95,11 @@ LoopFillZerobss:
 
 /* Call static constructors */
     bl __libc_init_array
+
+// r9 loading from https://github.com/rgujju/STM32-projects/blob/master/got_plt/startup.S
+// Not sure if needed but having it here anyways before jumping to main.
+    ldr r9, =_sgot
+
 /* Call the application's entry point.*/
 	bl	main
 

@@ -139,6 +139,21 @@ SECTIONS
 
   } >RAM AT> FLASH
 
+	/* GOT sections taken from https://github.com/rgujju/STM32-projects/blob/master/got_plt/stm32_linker.ld */
+  .got :
+  {
+    . = ALIGN(4);
+    _sgot = .;
+    *(.got)
+  } >RAM AT> FLASH
+    
+  .got.plt :
+  {
+    . = ALIGN(4);
+    *(.got.plt)
+    _edata = .;
+  } >RAM AT> FLASH
+
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
   .bss :
