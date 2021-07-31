@@ -58,3 +58,7 @@ So it was trying to fetch 0xF8DFFBF8? There is nothing there.
 ![](cm4fw_008_tickfreq_crash_fpic.jpg)
 
 ![](cm4fw_009_tickfreq_OK_non-fpic.jpg)
+
+### 18:51
+
+![](cm4fw_010_ram_comparison.jpg)
