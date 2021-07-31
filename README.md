@@ -62,3 +62,9 @@ So it was trying to fetch 0xF8DFFBF8? There is nothing there.
 ### 18:51
 
 ![](cm4fw_010_ram_comparison.jpg)
+
+### 21:31
+
+Commit 75183df0d8a3121af1643f088deab6b19f18a505 made the crash go away when running from address 0. I basically added got* sections to linker script and added R9 stuff t startup assembly. R9 seems at least now to bo not needed.
+
+Got some good ideas from https://github.com/rgujju/STM32-projects/tree/master/got_plt
