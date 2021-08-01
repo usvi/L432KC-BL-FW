@@ -68,3 +68,9 @@ So it was trying to fetch 0xF8DFFBF8? There is nothing there.
 Commit 75183df0d8a3121af1643f088deab6b19f18a505 made the crash go away when running from address 0. I basically added got* sections to linker script and added R9 stuff t startup assembly. R9 seems at least now to bo not needed.
 
 Got some good ideas from https://github.com/rgujju/STM32-projects/tree/master/got_plt
+
+## 2021-08-01
+
+### 17:79
+
+Added for reference firmware "L432KC_Firmware_0x8005000" which is "set in stone" to load itself from 0x8005000. In fSTM32CubeProgrammer, flashing bootloader to beginning of flash (0x8000000) and L432KC_Firmware_0x8005000 to 0x8005000 makes bootloader successfully jump to main.
