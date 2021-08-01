@@ -63,7 +63,7 @@ static void MX_GPIO_Init(void);
   */
 int main(void)
 {
-#warning Temporarily put firmware to start from first flash address and enabled PIC, works to some extend
+#warning Firmware configured in linker to start from 0x8000000 but .bin to be flashed to 0x8005000
   uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();
