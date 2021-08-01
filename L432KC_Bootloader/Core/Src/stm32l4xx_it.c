@@ -85,6 +85,11 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
+  uint32_t u32Cfsr = *((uint32_t*)0xE000ED28);
+  u32Cfsr += 0; // To stop compile nags
+
+  uint32_t u32Bfar = *((uint32_t*)0xE000ED38);
+  u32Bfar += 0; // To stop compile nags
 
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
