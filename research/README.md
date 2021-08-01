@@ -1,19 +1,7 @@
 L432KC-BL-FW
 
 
-# NUCLEO L432KC Bootloader and PIC Firmware Image research
-
-This repository is for researching how to get STM32 NUCLEO-L432KC evaluation board to boot position independent firmware image code from an *arbitrary* location using custom bootloader. So to boot the same firmware blob from whatever location. (Of course the bootloader must know the address.)
-
-Quick statuses
-
-Bootloader: **Works. Can jump to application firmware and to even itself :D**
-
-Firmware_anywhere: **Does not work. Temporarily running from first flash address also with -fPIC on, crashes, investigating.**
-
-Firmware_0x8005000: **Works when flashed to 0x8005000. Bootloader jumps to the firmware fine.**
-
-# Research
+# NUCLEO L432KC Bootloader and PIC Firmware Image (crash) research
 
 ## 2021-07-30
 ### 23:33
