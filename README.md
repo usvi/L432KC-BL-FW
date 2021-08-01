@@ -11,7 +11,7 @@ Bootloader: **Works. Can jump to application firmware and to even itself :D**
 
 Firmware_0x8005000: **Works when .bin flashed to 0x8005000. Bootloader jumps to the firmware fine. Flash defined in linker to start from 0x8005000. -fPIC enabled in IDE, also fixing VTOR.**
 
-Firmware_anywhere: **Does not work when .bin flashed to 0x8005000. Flash defined in linker to start from 0x8000000. -fPIC enabled in IDE. No VTOR fixups.**
+Firmware_anywhere: **Does not work when .bin flashed to 0x8005000. Bootloader tries to jump but crashes. Flash defined in linker to start from 0x8000000. -fPIC enabled in IDE. No VTOR fixups.**
 
 
 # Research
