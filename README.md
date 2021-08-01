@@ -9,8 +9,9 @@ Quick statuses
 
 Bootloader: **Works. Can jump to application firmware and to even itself :D**
 
-Firmware: **Does not work. Temporarily running from first flash address also with -fPIC on, crashes, investigating**
+Firmware_anywhere: **Does not work. Temporarily running from first flash address also with -fPIC on, crashes, investigating.**
 
+Firmware_0x8005000: ** Works when flashed to 0x8005000. Bootloader jumps to the firmware fine.**
 
 # Research
 
