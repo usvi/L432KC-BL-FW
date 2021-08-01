@@ -16,4 +16,4 @@ Firmware_anywhere: **Does not work when .bin flashed to 0x8005000. Flash defined
 
 # Research
 
-See the [research](research/) .
+See the subdirectory [research](research/) .
