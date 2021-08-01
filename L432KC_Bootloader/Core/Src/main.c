@@ -77,7 +77,7 @@ int main(void)
   // Leave LED off
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
   // Deinit and jump
-  //vL432kc_DeInitAndJump(0); // 0 here => bootloader jumps to itself :)
+  //vL432kc_DeInitAndJump(0x8000000); // 0x8000000 here => bootloader jumps to itself :)
   vL432kc_DeInitAndJump(0x8005000); // Here actual firmware address
 }
 
