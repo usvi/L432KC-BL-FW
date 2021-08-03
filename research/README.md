@@ -63,3 +63,17 @@ Got some good ideas from https://github.com/rgujju/STM32-projects/tree/master/go
 ### 17:79
 
 Added for reference firmware "L432KC_Firmware_0x8005000" which is "set in stone" to load itself from 0x8005000. In fSTM32CubeProgrammer, flashing bootloader to beginning of flash (0x8000000) and L432KC_Firmware_0x8005000 to 0x8005000 makes bootloader successfully jump to main.
+
+## 2021-08-03
+
+### 22:57
+
+Full dissassemblies, beginning:
+
+![](cm4fw_011_dism_boot.jpg)
+
+![](cm4fw_012_dism_5000.jpg)
+
+![](cm4fw_013_dism_anywhere.jpg)
+
+Number of registers varies among the dissassembled files.
