@@ -30,25 +30,10 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
-
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
+extern uint32_t __RAM_VECTOR_TABLE_BEGIN__;
+extern uint32_t __RAM_VECTOR_TABLE_END__;
+extern uint32_t __FLASH_BOOTLOADER_BEGIN__;
+extern uint32_t __FLASH_FIRMWARES_EARLIEST_BEGIN__;
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
@@ -58,6 +43,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+// Private...?
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
@@ -66,9 +52,13 @@ void Error_Handler(void);
 #define SWCLK_GPIO_Port GPIOA
 #define LD3_Pin GPIO_PIN_3
 #define LD3_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+// Helper defines for addresses
+#define RAM_VECTOR_TABLE_BEGIN ((uint32_t)(&__RAM_VECTOR_TABLE_BEGIN__)) /* Basically 0x20000000 */
+#define RAM_VECTOR_TABLE_END ((uint32_t)(&__RAM_VECTOR_TABLE_END__)) /* Basically 0x20000200 */
+#define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__FLASH_BOOTLOADER_BEGIN__)) /* Basically 0x8000000 */
+#define FLASH_FIRMWARES_EARLIEST_BEGIN ((uint32_t)(&__FLASH_FIRMWARES_EARLIEST_BEGIN__)) /* Basically 0x8005000 */
+
 
 #ifdef __cplusplus
 }

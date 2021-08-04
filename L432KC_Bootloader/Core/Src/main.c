@@ -35,30 +35,80 @@ typedef struct
 } JumpStruct;
 
 
-static void vL432kc_DeInitAndJump(const uint32_t u32JumpAddress)
+static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 {
-  // Most parts from https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
-  const JumpStruct* pxJumpVector = (JumpStruct*)u32JumpAddress;
+  // Deinitialization parts from https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+  uint32_t* pu32FwFlashVectorTablePointer = (uint32_t*)u32FwAddress;
+  uint32_t* pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
 
+  // Check if we need to do reset handler relocation. Not 100% accurate because
+  // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
+  uint32_t u32UnalteredResetAddress = *(pu32FwFlashVectorTablePointe + 1);
+
+  // Cannot figure out right now what corner case could be
+  if (u32UnalteredResetAddress < FLASH_FIRMWARES_EARLIEST_BEGIN)
+  {
+    // Detected actual firmware, so copy and patch it.
+
+    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    {
+      *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
+    }
+    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    // Reset is in offset 1
+    // Example
+    // We are given  u32FwAddress = 0x8005000;
+    // Firmware binary thinks it is in 0x8000000 (which is actually bootloader start address)
+    // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
+    *(pu32FwRamVectorTablePointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+
+  }
+
+
+  while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+  {
+    *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
+  }
+  pu32FwRamVectorTablePointer = (uint32_t*)0x20000000;
+
+  uint32_t u32Stack = *pu32FwRamVectorTablePointer;
+  uint32_t u32Reset = *(pu32FwRamVectorTablePointer + 1);
+
+  // Patch reset handler
+  *(pu32FwRamVectorTablePointer + 1) += 0x5000;
+
+  u32Reset = *(pu32FwRamVectorTablePointer + 1);
+
+  const JumpStruct* pxJumpVector = (JumpStruct*)0x20000000;
+
+/*
   HAL_GPIO_DeInit(LD3_GPIO_Port, LD3_Pin);
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOA_CLK_DISABLE();
   __HAL_RCC_GPIOB_CLK_DISABLE();
   HAL_RCC_DeInit();
   HAL_DeInit();
+*/
   __disable_irq();
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
 
+  SCB->VTOR = 0x20000000;
+
   // Actual jump
   asm("msr msp, %0; bx %1;" : : "r"(pxJumpVector->stack_addr), "r"(pxJumpVector->func_p));
 }
+
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
+
+//extern char __KERNEL_BEGIN__;
+
+
 int main(void)
 {
   uint32_t u32LedCounter = 0;
@@ -77,7 +127,9 @@ int main(void)
   // Leave LED off
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
   // Deinit and jump
+
   //vL432kc_DeInitAndJump(0x8000000); // 0x8000000 here => bootloader jumps to itself :)
+
   vL432kc_DeInitAndJump(0x8005000); // Here actual firmware address
 }
 

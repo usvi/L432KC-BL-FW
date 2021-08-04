@@ -28,18 +28,41 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(RAM) + LENGTH(RAM);	/* end of "RAM" Ram type memory */
+_estack = ORIGIN(RAM_GENERAL) + LENGTH(RAM_GENERAL);	/* end of "RAM" Ram type memory */
 
 _Min_Heap_Size = 0x200 ;	/* required amount of heap  */
 _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 
+
+
+/* We have 256k flash and 64k ram.*/
+/* General layout of the chip */
+RAM_FULL_START = 0x20000000 ;
+FLASH_FULL_START = 0x8000000 ;
+
+/* Our partitioning */
+RAM_FULL_LENGTH = 64K ;
+RAM_FIRMWARE_ISR_LENGTH = 512 ;
+FLASH_FULL_LENGTH = 256K ;
+FLASH_BOOTLOADER_LENGTH = 20K ;
+
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 64K
-  /* Full flash length is 256K, but reserving only 20K for bootloader */
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 20K
+  RAM_FIRMWARE_ISR  (xrw)  : ORIGIN = RAM_FULL_START,   LENGTH = RAM_FIRMWARE_ISR_LENGTH
+  RAM_GENERAL       (xrw)  : ORIGIN = ORIGIN(RAM_FIRMWARE_ISR) + LENGTH(RAM_FIRMWARE_ISR), LENGTH = RAM_FULL_LENGTH - LENGTH(RAM_FIRMWARE_ISR)
+  FLASH_BOOTLOADER   (rx)  : ORIGIN = FLASH_FULL_START,   LENGTH = FLASH_BOOTLOADER_LENGTH
+  FLASH_FIRMWARES    (rx)  : ORIGIN = ORIGIN(FLASH_BOOTLOADER) + LENGTH(FLASH_BOOTLOADER) , LENGTH = FLASH_FULL_LENGTH - LENGTH(FLASH_BOOTLOADER)
 }
+
+/* PROVIDE(__KERNEL_BEGIN__ = RAM_FULL_START) ;*/
+
+/* Lets think about what we need to give. */
+PROVIDE(__RAM_VECTOR_TABLE_BEGIN__ = ORIGIN(RAM_FIRMWARE_ISR)) ;
+PROVIDE(__RAM_VECTOR_TABLE_END__ = 0x20000200) ; /* Vector table size varies even between same M number core , I think *200 fits most.*/
+PROVIDE(__FLASH_BOOTLOADER_BEGIN__ = ORIGIN(FLASH_BOOTLOADER)) ;
+PROVIDE(__FLASH_FIRMWARES_EARLIEST_BEGIN__ = ORIGIN(FLASH_FIRMWARES)) ;
+
 
 /* Sections */
 SECTIONS
@@ -50,7 +73,8 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
+
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -67,7 +91,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
@@ -76,13 +100,13 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   .ARM.extab   : {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   .ARM : {
     . = ALIGN(4);
@@ -90,7 +114,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   .preinit_array     :
   {
@@ -99,7 +123,7 @@ SECTIONS
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   .init_array :
   {
@@ -109,7 +133,7 @@ SECTIONS
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   .fini_array :
   {
@@ -119,7 +143,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_BOOTLOADER
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -137,7 +161,7 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
-  } >RAM AT> FLASH
+  } >RAM_GENERAL AT> FLASH_BOOTLOADER
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
@@ -153,7 +177,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM
+  } >RAM_GENERAL
 
   /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
   ._user_heap_stack :
@@ -164,7 +188,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM
+  } >RAM_GENERAL
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :
