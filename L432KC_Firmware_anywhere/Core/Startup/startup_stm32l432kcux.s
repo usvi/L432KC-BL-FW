@@ -60,6 +60,7 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
+  ldr   r9, =0xDEADBEEF;
   ldr   sp, =_estack    /* Set stack pointer */
 
 /* Call the clock system initialization function.*/
