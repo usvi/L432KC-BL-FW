@@ -37,13 +37,14 @@ typedef struct
 
 static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 {
-  // Deinitialization parts from https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+  uint32_t u32VectorAddress = 0;
+
   uint32_t* pu32FwFlashVectorTablePointer = (uint32_t*)u32FwAddress;
   uint32_t* pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
 
   // Check if we need to do reset handler relocation. Not 100% accurate because
   // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
-  uint32_t u32UnalteredResetAddress = *(pu32FwFlashVectorTablePointe + 1);
+  uint32_t u32UnalteredResetAddress = *(pu32FwFlashVectorTablePointer + 1);
 
   // Cannot figure out right now what corner case could be
   if (u32UnalteredResetAddress < FLASH_FIRMWARES_EARLIEST_BEGIN)
@@ -62,39 +63,28 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
     *(pu32FwRamVectorTablePointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
 
+    u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
   }
-
-
-  while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+  else
   {
-    *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
+    u32VectorAddress = u32FwAddress;
   }
-  pu32FwRamVectorTablePointer = (uint32_t*)0x20000000;
+  // Deinitialization and jump parts from
+  // https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+  const JumpStruct* pxJumpVector = (JumpStruct*)u32VectorAddress;
 
-  uint32_t u32Stack = *pu32FwRamVectorTablePointer;
-  uint32_t u32Reset = *(pu32FwRamVectorTablePointer + 1);
-
-  // Patch reset handler
-  *(pu32FwRamVectorTablePointer + 1) += 0x5000;
-
-  u32Reset = *(pu32FwRamVectorTablePointer + 1);
-
-  const JumpStruct* pxJumpVector = (JumpStruct*)0x20000000;
-
-/*
   HAL_GPIO_DeInit(LD3_GPIO_Port, LD3_Pin);
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOA_CLK_DISABLE();
   __HAL_RCC_GPIOB_CLK_DISABLE();
   HAL_RCC_DeInit();
   HAL_DeInit();
-*/
   __disable_irq();
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
 
-  SCB->VTOR = 0x20000000;
+  SCB->VTOR = u32VectorAddress;
 
   // Actual jump
   asm("msr msp, %0; bx %1;" : : "r"(pxJumpVector->stack_addr), "r"(pxJumpVector->func_p));
