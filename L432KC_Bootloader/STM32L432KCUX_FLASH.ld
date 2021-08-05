@@ -34,7 +34,6 @@ _Min_Heap_Size = 0x200 ;	/* required amount of heap  */
 _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 
 
-
 /* We have 256k flash and 64k ram.*/
 /* General layout of the chip */
 RAM_FULL_START =  0x20000000 ;
@@ -71,6 +70,7 @@ SECTIONS
 	PROVIDE(__FLASH_BOOTLOADER_BEGIN__ = . ) ;
     KEEP(*(.isr_vector)) /* Startup code */
 	PROVIDE(__RAM_VECTOR_TABLE_END__ = . - FLASH_FULL_START + RAM_FULL_START) ;
+	PROVIDE(__RAM_GOT_PLT_BEGIN__ = . - FLASH_FULL_START + RAM_FULL_START) ;
     . = ALIGN(4);
   } >FLASH_BOOTLOADER
 
