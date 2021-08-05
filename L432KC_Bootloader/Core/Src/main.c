@@ -51,6 +51,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   {
     // Detected actual firmware, so copy and patch it.
 
+    // Copy first
     while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
       *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
@@ -61,7 +62,22 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // We are given  u32FwAddress = 0x8005000;
     // Firmware binary thinks it is in 0x8000000 (which is actually bootloader start address)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
+
+    // Patch Error_Handler first
     *(pu32FwRamVectorTablePointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+
+    /*
+    // Optionally, patch the rest of the vector table
+    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamVectorTablePointer++;
+    pu32FwRamVectorTablePointer++;
+
+    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    {
+      *(pu32FwRamVectorTablePointer++) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+    }
+    //*/
+
 
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
   }

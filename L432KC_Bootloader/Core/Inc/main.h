@@ -30,6 +30,8 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
+extern uint32_t __RAM_RELOTABLES_BEGIN__;
+extern uint32_t __RAM_RELOTABLES_END__;
 extern uint32_t __RAM_VECTOR_TABLE_BEGIN__;
 extern uint32_t __RAM_VECTOR_TABLE_END__;
 extern uint32_t __FLASH_BOOTLOADER_BEGIN__;
@@ -54,8 +56,10 @@ void Error_Handler(void);
 #define LD3_GPIO_Port GPIOB
 
 // Helper defines for addresses
+#define RAM_RELOTABLES_BEGIN ((uint32_t)(&__RAM_RELOTABLES_BEGIN__)) /* Basically 0x20000000 */
+#define RAM_RELOTABLES_END ((uint32_t)(&__RAM_RELOTABLES_BEGIN__)) /* Whatever is defined in linker file. 4k during writing. */
 #define RAM_VECTOR_TABLE_BEGIN ((uint32_t)(&__RAM_VECTOR_TABLE_BEGIN__)) /* Basically 0x20000000 */
-#define RAM_VECTOR_TABLE_END ((uint32_t)(&__RAM_VECTOR_TABLE_END__)) /* Basically 0x20000200 */
+#define RAM_VECTOR_TABLE_END ((uint32_t)(&__RAM_VECTOR_TABLE_END__)) /* Dynamically from linker so we don't need to guessa about variants. */
 #define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__FLASH_BOOTLOADER_BEGIN__)) /* Basically 0x8000000 */
 #define FLASH_FIRMWARES_EARLIEST_BEGIN ((uint32_t)(&__FLASH_FIRMWARES_EARLIEST_BEGIN__)) /* Basically 0x8005000 */
 
