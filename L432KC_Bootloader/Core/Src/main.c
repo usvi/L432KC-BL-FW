@@ -117,7 +117,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 
 int main(void)
 {
-  uint32_t u32LedCounter = 0;
+        uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
