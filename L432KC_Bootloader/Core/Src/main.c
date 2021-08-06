@@ -40,7 +40,8 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   uint32_t u32VectorAddress = 0;
 
   uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
-  uint32_t* pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+  uint32_t* pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+  uint32_t* pu32FwRamGotEnd = NULL;
 
   // Check if we need to do reset handler relocation. Not 100% accurate because
   // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
@@ -52,11 +53,11 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Detected actual firmware, so copy and patch it.
 
     // Copy first
-    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
-      *(pu32FwRamVectorPointer++) = *(pu32FwFlashPointer++);
+      *(pu32FwRamPointer++) = *(pu32FwFlashPointer++);
     }
-    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
     // Reset is in offset 1
     // Example
     // We are given  u32FwAddress = 0x8005000;
@@ -64,29 +65,50 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
 
     // Patch Error_Handler first
-    *(pu32FwRamVectorPointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+    *(pu32FwRamPointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
 
     // Patch the rest of the vector table, but only if values != 0
     // Initialize again
-    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
     // Skip over already patched area.
-    pu32FwRamVectorPointer++;
-    pu32FwRamVectorPointer++;
+    pu32FwRamPointer++;
+    pu32FwRamPointer++;
 
-    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
-      if (*pu32FwRamVectorPointer != 0)
+      if (*pu32FwRamPointer != 0)
       {
-        *pu32FwRamVectorPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+        *pu32FwRamPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
       }
-      pu32FwRamVectorPointer++;
+      pu32FwRamPointer++;
     }
 
     // Debugging stuff, copying GOT to ram
-    pu32FwRamVectorPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
+    pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
     pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
+    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines
 
+    while (pu32FwRamPointer < pu32FwRamGotEnd)
+    {
+      *(pu32FwRamPointer++) = *(pu32FwFlashPointer++);
+    }
 
+    // Patch all addresses which are < 0x20000000/RAM_VECTOR_TABLE_BEGIN
+    pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
+    pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
+    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines
+
+    while (pu32FwRamPointer < pu32FwRamGotEnd)
+    {
+      if (*pu32FwRamPointer < RAM_VECTOR_TABLE_BEGIN)
+      {
+        // Something like 080018cc so need to add u32FwAddress - FLASH_BOOTLOADER_BEGIN)
+        //                            eq.            0x8005000 - 0x8000000
+        *pu32FwRamPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+      }
+      pu32FwRamPointer++;
+    }
+    // And lets hope for the best
 
 
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;

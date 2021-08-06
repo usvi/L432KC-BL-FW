@@ -64,8 +64,11 @@ static void MX_GPIO_Init(void);
 int main(void)
 {
 #warning Firmware configured in linker to start from 0x8000000 but .bin to be flashed to 0x8005000
+  asm("ldr   r9, =0xDEAD0001");
   uint32_t u32LedCounter = 0;
+  asm("ldr   r9, =0xDEAD0002");
   HAL_Init();
+  asm("ldr   r9, =0xDEAD0003");
   SystemClock_Config();
   __enable_irq();
   MX_GPIO_Init();
