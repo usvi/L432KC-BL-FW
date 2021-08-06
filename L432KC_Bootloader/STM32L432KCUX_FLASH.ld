@@ -41,14 +41,16 @@ FLASH_FULL_START = 0x8000000 ;
 
 /* Our partitioning */
 RAM_FULL_LENGTH = 64K ;
-RAM_RELOTABLES_LENGTH = 4K ; /* Just a guess. */
+RAM_EMPTY_LENGTH = 2K ; 
 FLASH_FULL_LENGTH = 256K ;
 FLASH_BOOTLOADER_LENGTH = 20K ;
 
 /* Memories definition */
 MEMORY
 {
-  RAM_GENERAL   (xrw)  : ORIGIN = RAM_FULL_START,   LENGTH = RAM_FULL_LENGTH
+  /* Need a bit of space to freely operate on patching, for now */
+  RAM_EMPTY        (xrw)  : ORIGIN = RAM_FULL_START, LENGTH = RAM_EMPTY_LENGTH
+  RAM_GENERAL      (xrw)  : ORIGIN = ORIGIN(RAM_EMPTY) + LENGTH(RAM_EMPTY), LENGTH = RAM_FULL_LENGTH - RAM_EMPTY_LENGTH
   FLASH_BOOTLOADER  (rx)  : ORIGIN = FLASH_FULL_START,   LENGTH = FLASH_BOOTLOADER_LENGTH
   FLASH_FIRMWARES   (rx)  : ORIGIN = ORIGIN(FLASH_BOOTLOADER) + LENGTH(FLASH_BOOTLOADER) , LENGTH = FLASH_FULL_LENGTH - LENGTH(FLASH_BOOTLOADER)
 }
@@ -70,6 +72,10 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH_BOOTLOADER
 
+  /* ALready aligned, but just in case */
+  . = ALIGN(4);
+  __ram_got_plt_start = . - FLASH_FULL_START + RAM_FULL_START ;
+  
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -139,6 +145,7 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
   } >FLASH_BOOTLOADER
+
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);

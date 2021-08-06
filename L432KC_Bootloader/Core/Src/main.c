@@ -39,12 +39,12 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 {
   uint32_t u32VectorAddress = 0;
 
-  uint32_t* pu32FwFlashVectorTablePointer = (uint32_t*)u32FwAddress;
-  uint32_t* pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+  uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
+  uint32_t* pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
 
   // Check if we need to do reset handler relocation. Not 100% accurate because
   // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
-  uint32_t u32UnalteredResetAddress = *(pu32FwFlashVectorTablePointer + 1);
+  uint32_t u32UnalteredResetAddress = *(pu32FwFlashPointer + 1);
 
   // Cannot figure out right now what corner case could be
   if (u32UnalteredResetAddress < FLASH_FIRMWARES_EARLIEST_BEGIN)
@@ -52,11 +52,11 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Detected actual firmware, so copy and patch it.
 
     // Copy first
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
-      *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
+      *(pu32FwRamVectorPointer++) = *(pu32FwFlashPointer++);
     }
-    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
     // Reset is in offset 1
     // Example
     // We are given  u32FwAddress = 0x8005000;
@@ -64,19 +64,26 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
 
     // Patch Error_Handler first
-    *(pu32FwRamVectorTablePointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+    *(pu32FwRamVectorPointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
 
-    /*
-    // Optionally, patch the rest of the vector table
-    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
-    pu32FwRamVectorTablePointer++;
-    pu32FwRamVectorTablePointer++;
+    // Patch the rest of the vector table, but only if values != 0
+    // Initialize again
+    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    // Skip over already patched area.
+    pu32FwRamVectorPointer++;
+    pu32FwRamVectorPointer++;
 
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
-      *(pu32FwRamVectorTablePointer++) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+      if (*pu32FwRamVectorPointer != 0)
+      {
+        *pu32FwRamVectorPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+      }
+      pu32FwRamVectorPointer++;
     }
-    //*/
+
+    // Debugging stuff, copying
+
 
 
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
@@ -117,7 +124,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 
 int main(void)
 {
-        uint32_t u32LedCounter = 0;
+  uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();

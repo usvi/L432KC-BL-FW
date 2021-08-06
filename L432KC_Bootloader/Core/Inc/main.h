@@ -34,6 +34,7 @@ extern uint32_t __ram_vector_table_begin;
 extern uint32_t __ram_vector_table_end;
 extern uint32_t __flash_bootloader_begin;
 extern uint32_t __flash_firmwares_earliest_begin;
+extern uint32_t __ram_got_plt_start;
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
@@ -56,6 +57,7 @@ void Error_Handler(void);
 // Helper defines for addresses
 #define RAM_VECTOR_TABLE_BEGIN ((uint32_t)(&__ram_vector_table_begin)) /* Basically 0x20000000 */
 #define RAM_VECTOR_TABLE_END ((uint32_t)(&__ram_vector_table_end)) /* Dynamically from linker so we don't need to guessa about variants. */
+#define RAM_GOT_PLT_START ((uint32_t)(&__ram_got_plt_start)) /* Dynamically from linker so we don't need to guessa about variants. */
 #define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_bootloader_begin)) /* Basically 0x8000000 */
 #define FLASH_FIRMWARES_EARLIEST_BEGIN ((uint32_t)(&__flash_firmwares_earliest_begin)) /* Basically 0x8005000 */
 
