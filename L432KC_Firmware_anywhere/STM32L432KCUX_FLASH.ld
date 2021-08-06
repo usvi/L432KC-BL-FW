@@ -55,6 +55,21 @@ SECTIONS
     . = ALIGN(4);
   } >RAM AT> FLASH
 
+	/* GOT sections taken from https://github.com/rgujju/STM32-projects/blob/master/got_plt/stm32_linker.ld */
+  .got :
+  {
+    . = ALIGN(4);
+    _sgot = .;
+    *(.got)
+  } >RAM AT> FLASH
+    
+  .got.plt :
+  {
+    . = ALIGN(4);
+    *(.got.plt)
+    /* _edata = .; */
+  } >RAM AT> FLASH
+
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {
@@ -140,21 +155,6 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
-  } >RAM AT> FLASH
-
-	/* GOT sections taken from https://github.com/rgujju/STM32-projects/blob/master/got_plt/stm32_linker.ld */
-  .got :
-  {
-    . = ALIGN(4);
-    _sgot = .;
-    *(.got)
-  } >RAM AT> FLASH
-    
-  .got.plt :
-  {
-    . = ALIGN(4);
-    *(.got.plt)
-    _edata = .;
   } >RAM AT> FLASH
 
   /* Uninitialized data section into "RAM" Ram type memory */
