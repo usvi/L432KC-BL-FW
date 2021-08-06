@@ -82,7 +82,10 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
       pu32FwRamVectorPointer++;
     }
 
-    // Debugging stuff, copying
+    // Debugging stuff, copying GOT to ram
+    //pu32FwRamVectorPointer = (uint32_t*)RAM_GOT_PLT_START;
+    //pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_START - RAM_VECTOR_TABLE_BEGIN)) ;
+
 
 
 

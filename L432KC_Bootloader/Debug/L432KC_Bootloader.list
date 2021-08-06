@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   00007397  00000000  00000000  00048a72  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000b7f0c  00000000  00000000  0004fe09  2**0
+ 18 .debug_str    000b7efc  00000000  00000000  0004fe09  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  00107d15  2**0
+ 19 .comment      00000053  00000000  00000000  00107d05  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000018f4  00000000  00000000  00107d68  2**2
+ 20 .debug_frame  000018f4  00000000  00000000  00107d58  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -91,16 +91,16 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
  80001d4:	2300      	movs	r3, #0
  80001d6:	61fb      	str	r3, [r7, #28]
 
-  uint32_t* pu32FwFlashVectorTablePointer = (uint32_t*)u32FwAddress;
+  uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
  80001d8:	687b      	ldr	r3, [r7, #4]
  80001da:	61bb      	str	r3, [r7, #24]
-  uint32_t* pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+  uint32_t* pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
  80001dc:	4b3b      	ldr	r3, [pc, #236]	; (80002cc <vL432kc_DeInitAndJump+0x100>)
  80001de:	617b      	str	r3, [r7, #20]
 
   // Check if we need to do reset handler relocation. Not 100% accurate because
   // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
-  uint32_t u32UnalteredResetAddress = *(pu32FwFlashVectorTablePointer + 1);
+  uint32_t u32UnalteredResetAddress = *(pu32FwFlashPointer + 1);
  80001e0:	69bb      	ldr	r3, [r7, #24]
  80001e2:	685b      	ldr	r3, [r3, #4]
  80001e4:	613b      	str	r3, [r7, #16]
@@ -115,10 +115,10 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Detected actual firmware, so copy and patch it.
 
     // Copy first
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
  80001ee:	e007      	b.n	8000200 <vL432kc_DeInitAndJump+0x34>
     {
-      *(pu32FwRamVectorTablePointer++) = *(pu32FwFlashVectorTablePointer++);
+      *(pu32FwRamVectorPointer++) = *(pu32FwFlashPointer++);
  80001f0:	69ba      	ldr	r2, [r7, #24]
  80001f2:	1d13      	adds	r3, r2, #4
  80001f4:	61bb      	str	r3, [r7, #24]
@@ -127,13 +127,13 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
  80001fa:	6179      	str	r1, [r7, #20]
  80001fc:	6812      	ldr	r2, [r2, #0]
  80001fe:	601a      	str	r2, [r3, #0]
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
  8000200:	697b      	ldr	r3, [r7, #20]
  8000202:	4a34      	ldr	r2, [pc, #208]	; (80002d4 <vL432kc_DeInitAndJump+0x108>)
  8000204:	4293      	cmp	r3, r2
  8000206:	d3f3      	bcc.n	80001f0 <vL432kc_DeInitAndJump+0x24>
     }
-    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
  8000208:	4b30      	ldr	r3, [pc, #192]	; (80002cc <vL432kc_DeInitAndJump+0x100>)
  800020a:	617b      	str	r3, [r7, #20]
     // We are given  u32FwAddress = 0x8005000;
@@ -141,7 +141,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
 
     // Patch Error_Handler first
-    *(pu32FwRamVectorTablePointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+    *(pu32FwRamVectorPointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
  800020c:	697b      	ldr	r3, [r7, #20]
  800020e:	3304      	adds	r3, #4
  8000210:	681a      	ldr	r2, [r3, #0]
@@ -155,29 +155,29 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 
     // Patch the rest of the vector table, but only if values != 0
     // Initialize again
-    pu32FwRamVectorTablePointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
+    pu32FwRamVectorPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
  8000220:	4b2a      	ldr	r3, [pc, #168]	; (80002cc <vL432kc_DeInitAndJump+0x100>)
  8000222:	617b      	str	r3, [r7, #20]
     // Skip over already patched area.
-    pu32FwRamVectorTablePointer++;
+    pu32FwRamVectorPointer++;
  8000224:	697b      	ldr	r3, [r7, #20]
  8000226:	3304      	adds	r3, #4
  8000228:	617b      	str	r3, [r7, #20]
-    pu32FwRamVectorTablePointer++;
+    pu32FwRamVectorPointer++;
  800022a:	697b      	ldr	r3, [r7, #20]
  800022c:	3304      	adds	r3, #4
  800022e:	617b      	str	r3, [r7, #20]
 
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
  8000230:	e00e      	b.n	8000250 <vL432kc_DeInitAndJump+0x84>
     {
-      if (*pu32FwRamVectorTablePointer != 0)
+      if (*pu32FwRamVectorPointer != 0)
  8000232:	697b      	ldr	r3, [r7, #20]
  8000234:	681b      	ldr	r3, [r3, #0]
  8000236:	2b00      	cmp	r3, #0
  8000238:	d007      	beq.n	800024a <vL432kc_DeInitAndJump+0x7e>
       {
-        *pu32FwRamVectorTablePointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+        *pu32FwRamVectorPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
  800023a:	697b      	ldr	r3, [r7, #20]
  800023c:	681a      	ldr	r2, [r3, #0]
  800023e:	687b      	ldr	r3, [r7, #4]
@@ -187,17 +187,17 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
  8000246:	697b      	ldr	r3, [r7, #20]
  8000248:	601a      	str	r2, [r3, #0]
       }
-      pu32FwRamVectorTablePointer++;
+      pu32FwRamVectorPointer++;
  800024a:	697b      	ldr	r3, [r7, #20]
  800024c:	3304      	adds	r3, #4
  800024e:	617b      	str	r3, [r7, #20]
-    while (pu32FwRamVectorTablePointer < (uint32_t*)RAM_VECTOR_TABLE_END)
+    while (pu32FwRamVectorPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
  8000250:	697b      	ldr	r3, [r7, #20]
  8000252:	4a20      	ldr	r2, [pc, #128]	; (80002d4 <vL432kc_DeInitAndJump+0x108>)
  8000254:	4293      	cmp	r3, r2
  8000256:	d3ec      	bcc.n	8000232 <vL432kc_DeInitAndJump+0x66>
+    //pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_START - RAM_VECTOR_TABLE_BEGIN)) ;
 
-    // Debugging stuff, copying
 
 
 
@@ -304,7 +304,7 @@ int main(void)
  80002ec:	b580      	push	{r7, lr}
  80002ee:	b082      	sub	sp, #8
  80002f0:	af00      	add	r7, sp, #0
-      uint32_t u32LedCounter = 0;
+  uint32_t u32LedCounter = 0;
  80002f2:	2300      	movs	r3, #0
  80002f4:	607b      	str	r3, [r7, #4]
   HAL_Init();

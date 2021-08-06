@@ -74,7 +74,7 @@ SECTIONS
 
   /* ALready aligned, but just in case */
   . = ALIGN(4);
-  __ram_got_plt_start = . - FLASH_FULL_START + RAM_FULL_START ;
+  __ram_got_plt_begin = . - FLASH_FULL_START + RAM_FULL_START ;
   
 
   /* The program code and other data into "FLASH" Rom type memory */
