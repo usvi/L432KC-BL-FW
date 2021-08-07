@@ -60,11 +60,13 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
-  ldr   r9, =0xDEADBEEF;
+  ldr   r11, =0xDEB00000;
   ldr   sp, =_estack    /* Set stack pointer */
 
 /* Call the clock system initialization function.*/
+  	ldr   r11, =0xDEB00010;
     bl  SystemInit
+  	ldr   r11, =0xDEB00110;
 
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
@@ -77,29 +79,35 @@ CopyDataInit:
 	adds	r1, r1, #4
 
 LoopCopyDataInit:
+	ldr   r11, =0xDEB00120;
 	ldr	r0, =_sdata
 	ldr	r3, =_edata
+	ldr   r11, =0xDEB00130;
 	adds	r2, r0, r1
 	cmp	r2, r3
+	ldr   r11, =0xDEB00140;
 	bcc	CopyDataInit
 	ldr	r2, =_sbss
 	b	LoopFillZerobss
 /* Zero fill the bss segment. */
 FillZerobss:
+ldr   r11, =0xDEB00150;
 	movs	r3, #0
 	str	r3, [r2], #4
 
 LoopFillZerobss:
+ldr   r11, =0xDEB00160;
 	ldr	r3, = _ebss
 	cmp	r2, r3
 	bcc	FillZerobss
 
 /* Call static constructors */
+ldr   r11, =0xDEB00170;
     bl __libc_init_array
 
 // r9 loading from https://github.com/rgujju/STM32-projects/blob/master/got_plt/startup.S
 // Not sure if needed but having it here anyways before jumping to main.
-    ldr r9, =_sgot
+ldr   r11, =0xDEB00180;
 
 /* Call the application's entry point.*/
 	bl	main
