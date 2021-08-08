@@ -70,20 +70,26 @@ Reset_Handler:
   movs   r1, #0
   movs   r12, #0
   // Try to load the value
-  ldr   r1, =gu32FirmwareOffset
-  ldr   r12, [r1]
 
 /* Call the clock system initialization function.*/
   	ldr   r11, =0xDEB00010;
     bl  SystemInit
-  	ldr   r11, =0xDEB00116;
+  	ldr   r11, =0xDEB00110;
 
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
   b	LoopCopyDataInit
 
 CopyDataInit:
-	ldr	r3, =_sidata
+    // _sidata must be fixed
+	// Load offset from memory
+	ldr   r1, =gu32FirmwareOffset
+	ldr   r12, [r1]
+	// Load and make local offset for _sidata 
+	ldr   r10, =_sidata
+  	ldr   r11, =0xDEB00115;
+	ldr	r3, =_sidata // < original address 
+	adds  r3, r10, r12 // < patched address
 	ldr	r3, [r3, r1]
 	str	r3, [r0, r1]
 	adds	r1, r1, #4
