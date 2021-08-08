@@ -91,7 +91,19 @@
                                     								
                                 </option>
                                 								
-                                <option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.fpic.1179897137" name="Position Independent Code (-fPIC)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.fpic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                <option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.fpic.1179897137" name="Position Independent Code (-fPIC)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.fpic" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.otherflags.883861538" name="Other flags" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.otherflags" useByScannerDiscovery="true" valueType="stringList">
+                                    									
+                                    <listOptionValue builtIn="false" value="-fpic"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="-msingle-pic-base"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="-mno-pic-data-is-text-relative"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="-mpic-register=r9"/>
+                                    								
+                                </option>
                                 								
                                 <inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1396461762" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
                                 							

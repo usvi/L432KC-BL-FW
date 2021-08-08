@@ -63,10 +63,20 @@ Reset_Handler:
   ldr   r11, =0xDEB00000;
   ldr   sp, =_estack    /* Set stack pointer */
 
+  // Store r12 passed by bootloader as gu32FirmwareOffset
+  ldr   r1, =gu32FirmwareOffset
+  str   r12, [r1]
+  // Empty registers for debugging purposes
+  movs   r1, #0
+  movs   r12, #0
+  // Try to load the value
+  ldr   r1, =gu32FirmwareOffset
+  ldr   r12, [r1]
+
 /* Call the clock system initialization function.*/
   	ldr   r11, =0xDEB00010;
     bl  SystemInit
-  	ldr   r11, =0xDEB00110;
+  	ldr   r11, =0xDEB00116;
 
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0

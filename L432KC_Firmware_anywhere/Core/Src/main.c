@@ -44,7 +44,7 @@
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
-
+uint32_t gu32FirmwareOffset = 0xdeadbeef;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -72,6 +72,7 @@ int main(void)
 
   while (1)
   {
+    //gu32FirmwareOffset++;
     u32LedCounter++;
 
     if ((u32LedCounter % 0xF0000) == 0)

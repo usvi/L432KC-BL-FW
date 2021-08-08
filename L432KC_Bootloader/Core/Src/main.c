@@ -42,6 +42,14 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
   uint32_t* pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
   uint32_t* pu32FwRamGotEnd = NULL;
+  uint32_t u32FirmwareOffset = u32FwAddress - FLASH_BOOTLOADER_BEGIN;
+  uint32_t u32UnpatchedValue = 0;
+  uint32_t u32PatchedValue = 0;
+  uint32_t u32GotPltBegin = RAM_GOT_PLT_BEGIN;
+
+  // Stop compile nags:
+  u32UnpatchedValue = u32UnpatchedValue;
+  u32PatchedValue = u32PatchedValue;
 
   // Check if we need to do reset handler relocation. Not 100% accurate because
   // if original binary reset handler gets pushed back beyond "natural" 0x5000 border, this fails
@@ -52,41 +60,37 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   {
     // Detected actual firmware, so copy and patch it.
 
-    // Copy first
+    // Copy vector table first
     while (pu32FwRamPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
       *(pu32FwRamPointer++) = *(pu32FwFlashPointer++);
     }
-    pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
     // Reset is in offset 1
     // Example
     // We are given  u32FwAddress = 0x8005000;
     // Firmware binary thinks it is in 0x8000000 (which is actually bootloader start address)
     // Offset is 0x8005000 - 0x8000000 eq u32FwAddress - FLASH_BOOTLOADER_BEGIN
 
-    // Patch Error_Handler first
-    *(pu32FwRamPointer + 1) += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
-
-    // Patch the rest of the vector table, but only if values != 0
-    // Initialize again
+    // Patch vector table...
     pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
-    // Skip over already patched area.
-    pu32FwRamPointer++;
-    pu32FwRamPointer++;
+    pu32FwRamPointer++; // .. but omit first address, it points to ram
 
+    // Actual patching loop
     while (pu32FwRamPointer < (uint32_t*)RAM_VECTOR_TABLE_END)
     {
       if (*pu32FwRamPointer != 0)
       {
-        *pu32FwRamPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+        u32UnpatchedValue = *pu32FwRamPointer;
+        *pu32FwRamPointer += u32FirmwareOffset;
+        u32PatchedValue = *pu32FwRamPointer;
       }
       pu32FwRamPointer++;
     }
 
-    // Debugging stuff, copying GOT to ram
+    // Now, copy relocation stuff
     pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
     pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
-    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines
+    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines, should be fixed
 
     while (pu32FwRamPointer < pu32FwRamGotEnd)
     {
@@ -102,15 +106,14 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
     {
       if (*pu32FwRamPointer < RAM_VECTOR_TABLE_BEGIN)
       {
-        // Something like 080018cc so need to add u32FwAddress - FLASH_BOOTLOADER_BEGIN)
-        //                            eq.            0x8005000 - 0x8000000
-        *pu32FwRamPointer += (u32FwAddress - FLASH_BOOTLOADER_BEGIN);
+        u32UnpatchedValue = *pu32FwRamPointer;
+        *pu32FwRamPointer += u32FirmwareOffset;
+        u32PatchedValue = *pu32FwRamPointer;
       }
       pu32FwRamPointer++;
     }
+
     // And lets hope for the best
-
-
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
   }
   else
@@ -128,6 +131,19 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   HAL_RCC_DeInit();
   HAL_DeInit();
   __disable_irq();
+
+  // Store got location to r9
+  asm ("ldr r9, %0;"
+      :"=m"(u32GotPltBegin)
+      :
+      :);
+
+  // Store firmware offset to r12
+  asm ("ldr r12, %0;"
+      :"=m"(u32FirmwareOffset)
+      :
+      :);
+
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
