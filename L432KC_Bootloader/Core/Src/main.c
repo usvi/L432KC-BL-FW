@@ -41,11 +41,9 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
 
   uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
   uint32_t* pu32FwRamPointer = (uint32_t*)RAM_VECTOR_TABLE_BEGIN;
-  uint32_t* pu32FwRamGotEnd = NULL;
   uint32_t u32FirmwareOffset = u32FwAddress - FLASH_BOOTLOADER_BEGIN;
   uint32_t u32UnpatchedValue = 0;
   uint32_t u32PatchedValue = 0;
-  uint32_t u32GotPltBegin = RAM_GOT_PLT_BEGIN;
 
   // Stop compile nags:
   u32UnpatchedValue = u32UnpatchedValue;
@@ -86,35 +84,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
       }
       pu32FwRamPointer++;
     }
-
-    // Unfortunately we need to patch ourselves the got with assembler
-    /*
-    // Now, copy relocation stuff
-    pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
-    pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
-    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines, should be fixed
-
-    while (pu32FwRamPointer < pu32FwRamGotEnd)
-    {
-      *(pu32FwRamPointer++) = *(pu32FwFlashPointer++);
-    }
-
-    // Patch all addresses which are < 0x20000000/RAM_VECTOR_TABLE_BEGIN
-    pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
-    pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
-    pu32FwRamGotEnd = pu32FwRamPointer + 6; // I see 6 lines
-
-    while (pu32FwRamPointer < pu32FwRamGotEnd)
-    {
-      if (*pu32FwRamPointer < RAM_VECTOR_TABLE_BEGIN)
-      {
-        u32UnpatchedValue = *pu32FwRamPointer;
-        *pu32FwRamPointer += u32FirmwareOffset;
-        u32PatchedValue = *pu32FwRamPointer;
-      }
-      pu32FwRamPointer++;
-    }
-    */
+    // Firmware patches its own got in assembly upon startup
 
     // And lets hope for the best
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
@@ -134,15 +104,6 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   HAL_RCC_DeInit();
   HAL_DeInit();
   __disable_irq();
-
-  // No need to do this anymore, we do it ourselves
-  /*
-  // Store got location to r9
-  asm ("ldr r9, %0;"
-      :"=m"(u32GotPltBegin)
-      :
-      :);
-  */
 
   // Store firmware offset to r12
   asm ("ldr r12, %0;"
@@ -189,8 +150,8 @@ int main(void)
   // Deinit and jump
 
   //vL432kc_DeInitAndJump(0x8000000); // 0x8000000 here => bootloader jumps to itself :)
-
-  vL432kc_DeInitAndJump(0x8005000); // Here actual firmware address
+  //vL432kc_DeInitAndJump(0x8007000); // << works if Firmware anywhere flashed here
+  vL432kc_DeInitAndJump(0x8005000); // << works if Firmware anywhere flashed here
 }
 
 /**
