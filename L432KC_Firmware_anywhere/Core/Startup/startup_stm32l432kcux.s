@@ -93,30 +93,28 @@ Reset_Handler:
 GotPatchLoopInit:
     movs r5, r2  // Set address pointer to got start location in ram
     movs r6, r4  // Set check pointer to got end location in ram
-
 GotPatchLoopCond:
 	cmp r5, r6  // Compare if at end of got
 	beq GotPatchEnd
-
 GotPatchLoopBody:
 	movs r8, r5  // Save original ram data pointer value
 	add r5, r5, #4 // Update counter to next already
 	subs r8, r8, r10 // Remove ram offset to get plain offset
 	adds r8, r8, r11 // And add flash offset from beginning of all flash
 	adds r8, r8, r12 // Add firmware relocation offset to get final flash position
-	ldr r7, [r8] // Load the actual data from f
+	ldr r7, [r8] // Load the actual data from flash
 	cmp r7, r1   // Compare data to the r1 = Patched location in flash
-	bhs GotPatchLoopCond // If the compare was higher or same, it is in righ location, dont patch, continue loop
+	bhs GotStoreToRam // If the compare was higher or same, it is in righ location, dont patch, just store directly to ram
 	adds r7, r7, r12 // Still here, so patching the actual value with relocation offset.
+GotStoreToRam:
 	subs r8, r8, r11 // r8 points to actual flash position, remove full flash offset
 	subs r8, r8, r12 // Remove relocation offset so we have plain offset
 	adds r8, r8, r10 // And add ram offset to get proper ram value
 	str r7, [r8] // Store the modified value
 	b GotPatchLoopCond // And go to check the loop
-
 GotPatchEnd:
 	movs r9, r2 // Putting the location of got table to agreed register r9
-	movs r1, 0
+	movs r1, 0 // Cleaning up the rest, just in case
 	movs r2, 0
 	movs r3, 0
 	movs r4, 0
@@ -179,7 +177,8 @@ LoopFillZerobss:
 
 /* Call static constructors */
 ldr   r11, =0xDEB00170;
-    bl __libc_init_array
+    //bl __libc_init_array
+
 
 ldr   r11, =0xDEB00180;
 
