@@ -60,16 +60,13 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
-  ldr   r11, =0xDEB00000;
-  ldr   sp, =_estack    /* Set stack pointer */
+	ldr   r11, =0xDEB00000;
+	ldr   sp, =_estack    /* Set stack pointer */
 
-  // Store r12 passed by bootloader as gu32FirmwareOffset
-  ldr   r1, =gu32FirmwareOffset
-  str   r12, [r1]
-  // Empty registers for debugging purposes
-  movs   r1, #0
-  movs   r12, #0
-  // Try to load the value
+	// Store r12 passed by bootloader as gu32FirmwareOffset
+	ldr r8, =gu32FirmwareOffset
+	str r12, [r8]
+	movs r8, #0
 
 /* Call the clock system initialization function.*/
   	ldr   r11, =0xDEB00010;
@@ -81,39 +78,42 @@ Reset_Handler:
   b	LoopCopyDataInit
 
 CopyDataInit:
-    // _sidata must be fixed
-	// Load offset from memory
-	ldr   r1, =gu32FirmwareOffset
-	ldr   r12, [r1]
-	// Load and make local offset for _sidata 
-	ldr   r10, =_sidata
-  	ldr   r11, =0xDEB00115;
-	ldr	r3, =_sidata // < original address 
-	adds  r3, r10, r12 // < patched address
+	ldr r12, =gu32FirmwareOffset
+	ldr r12, [r12]
+	ldr   r11, =0xDEB00115
+	ldr	r3, =_sidata
+	adds r3, r3, r12
 	ldr	r3, [r3, r1]
 	str	r3, [r0, r1]
 	adds	r1, r1, #4
 
 LoopCopyDataInit:
-	ldr   r11, =0xDEB00120;
+	ldr r12, =gu32FirmwareOffset
+	ldr r12, [r12]
+	ldr   r11, =0xDEB00120
 	ldr	r0, =_sdata
+	adds r0, r0, r12
+	ldr   r11, =0xDEB00130
 	ldr	r3, =_edata
-	ldr   r11, =0xDEB00130;
+	adds r3, r3, r12
 	adds	r2, r0, r1
 	cmp	r2, r3
-	ldr   r11, =0xDEB00140;
 	bcc	CopyDataInit
+	ldr   r11, =0xDEB00140
 	ldr	r2, =_sbss
+	adds r2, r2, r12
 	b	LoopFillZerobss
 /* Zero fill the bss segment. */
 FillZerobss:
-ldr   r11, =0xDEB00150;
 	movs	r3, #0
 	str	r3, [r2], #4
 
 LoopFillZerobss:
-ldr   r11, =0xDEB00160;
-	ldr	r3, = _ebss
+	ldr r12, =gu32FirmwareOffset
+	ldr r12, [r12]
+	ldr   r11, =0xDEB00150
+	ldr	r3, =_ebss
+	adds r3, r3, r12
 	cmp	r2, r3
 	bcc	FillZerobss
 
@@ -121,8 +121,6 @@ ldr   r11, =0xDEB00160;
 ldr   r11, =0xDEB00170;
     bl __libc_init_array
 
-// r9 loading from https://github.com/rgujju/STM32-projects/blob/master/got_plt/startup.S
-// Not sure if needed but having it here anyways before jumping to main.
 ldr   r11, =0xDEB00180;
 
 /* Call the application's entry point.*/
