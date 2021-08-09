@@ -87,6 +87,8 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
       pu32FwRamPointer++;
     }
 
+    // Unfortunately we need to patch ourselves the got with assembler
+    /*
     // Now, copy relocation stuff
     pu32FwRamPointer = (uint32_t*)RAM_GOT_PLT_BEGIN;
     pu32FwFlashPointer = (uint32_t*)(u32FwAddress + RAM_GOT_PLT_BEGIN - RAM_VECTOR_TABLE_BEGIN);
@@ -112,6 +114,7 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
       }
       pu32FwRamPointer++;
     }
+    */
 
     // And lets hope for the best
     u32VectorAddress = RAM_VECTOR_TABLE_BEGIN;
@@ -132,11 +135,14 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
   HAL_DeInit();
   __disable_irq();
 
+  // No need to do this anymore, we do it ourselves
+  /*
   // Store got location to r9
   asm ("ldr r9, %0;"
       :"=m"(u32GotPltBegin)
       :
       :);
+  */
 
   // Store firmware offset to r12
   asm ("ldr r12, %0;"

@@ -89,10 +89,6 @@ Reset_Handler:
 	adds r3, r2, r11  // Unpatched location in flash
 	adds r3, r2, r12  // Patched location in flash
 
-	movs r10, #0
-	movs r11, #0
-
-	// OIJOIJ
 
 GotPatchLoopInit:
     movs r5, r2  // Set address pointer to got start location in ram
@@ -103,16 +99,34 @@ GotPatchLoopCond:
 	beq GotPatchEnd
 
 GotPatchLoopBody:
-	movs r8, r5  // Save original data pointer value
+	movs r8, r5  // Save original ram data pointer value
 	add r5, r5, #4 // Update counter to next already
-	ldr r7, [r8] // Load the actual data from got table
+	subs r8, r8, r10 // Remove ram offset to get plain offset
+	adds r8, r8, r11 // And add flash offset from beginning of all flash
+	adds r8, r8, r12 // Add firmware relocation offset to get final flash position
+	ldr r7, [r8] // Load the actual data from f
 	cmp r7, r1   // Compare data to the r1 = Patched location in flash
 	bhs GotPatchLoopCond // If the compare was higher or same, it is in righ location, dont patch, continue loop
-	adds r7, r7, r12 // If still here, we need to patch the address
+	adds r7, r7, r12 // Still here, so patching the actual value with relocation offset.
+	subs r8, r8, r11 // r8 points to actual flash position, remove full flash offset
+	subs r8, r8, r12 // Remove relocation offset so we have plain offset
+	adds r8, r8, r10 // And add ram offset to get proper ram value
 	str r7, [r8] // Store the modified value
 	b GotPatchLoopCond // And go to check the loop
 
 GotPatchEnd:
+	movs r9, r2 // Putting the location of got table to agreed register r9
+	movs r1, 0
+	movs r2, 0
+	movs r3, 0
+	movs r4, 0
+	movs r5, 0
+	movs r6, 0
+	movs r7, 0
+	movs r8, 0
+	movs r10, 0
+	movs r11, 0
+	movs r12, 0
 
 /* Call the clock system initialization function.*/
   	ldr   r11, =0xDEB00010;
