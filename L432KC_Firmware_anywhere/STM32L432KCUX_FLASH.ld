@@ -44,6 +44,9 @@ MEMORY
   FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K
 }
 
+_ram_start = ORIGIN(RAM) ;
+_flash_start = ORIGIN(FLASH) ;
+
 /* Sections */
 SECTIONS
 {
@@ -59,8 +62,9 @@ SECTIONS
   .got :
   {
     . = ALIGN(4);
-    _sgot = .;
+    _got_start = .;
     *(.got)
+    _got_end = .;
   } >RAM AT> FLASH
     
   .got.plt :

@@ -44,7 +44,7 @@
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
-uint32_t gu32FirmwareOffset = 0xdeadbeef;
+uint32_t gu32FirmwareOffset;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);

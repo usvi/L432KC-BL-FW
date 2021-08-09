@@ -34,6 +34,8 @@
 .global	g_pfnVectors
 .global	Default_Handler
 
+
+
 /* start address for the initialization values of the .data section.
 defined in linker script */
 .word	_sidata
@@ -46,7 +48,10 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word	_ebss
 
+
+
 .equ  BootRAM,        0xF1E0F85F
+
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
@@ -67,6 +72,47 @@ Reset_Handler:
 	ldr r8, =gu32FirmwareOffset
 	str r12, [r8]
 	movs r8, #0
+
+// Copy and fix the got
+	ldr r10, =_ram_start
+	ldr r11, =_flash_start
+
+	ldr r1, =_got_start
+	movs r2, r1       // Location in ram
+	subs r1, r1, r10  // Offset (in ram)
+	adds r1, r1, r11  // Unpatched location in flash
+	adds r1, r1, r12  // Patched location in flash
+
+	ldr r3, =_got_end
+	movs r4, r3       // Location in ram
+	subs r3, r2, r10  // Offset (in ram)
+	adds r3, r2, r11  // Unpatched location in flash
+	adds r3, r2, r12  // Patched location in flash
+
+	movs r10, #0
+	movs r11, #0
+
+	// OIJOIJ
+
+GotPatchLoopInit:
+    movs r5, r2  // Set address pointer to got start location in ram
+    movs r6, r4  // Set check pointer to got end location in ram
+
+GotPatchLoopCond:
+	cmp r5, r6  // Compare if at end of got
+	beq GotPatchEnd
+
+GotPatchLoopBody:
+	movs r8, r5  // Save original data pointer value
+	add r5, r5, #4 // Update counter to next already
+	ldr r7, [r8] // Load the actual data from got table
+	cmp r7, r1   // Compare data to the r1 = Patched location in flash
+	bhs GotPatchLoopCond // If the compare was higher or same, it is in righ location, dont patch, continue loop
+	adds r7, r7, r12 // If still here, we need to patch the address
+	str r7, [r8] // Store the modified value
+	b GotPatchLoopCond // And go to check the loop
+
+GotPatchEnd:
 
 /* Call the clock system initialization function.*/
   	ldr   r11, =0xDEB00010;
