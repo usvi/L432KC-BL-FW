@@ -173,7 +173,52 @@ LoopFillZerobss:
 
 /* Call static constructors */
 ldr   r11, =0xDEB00170;
-    //bl __libc_init_array
+//    bl __libc_init_array
+
+// Make our own __libc_init_array
+CallPreinitsInit:
+	ldr r0, =__preinit_array_start
+	adds r0, r12
+	ldr r1, =__preinit_array_end
+	adds r1, r12
+CallPreinitsLoopCond:
+	cmp r0, r1
+	beq CallPreinitsEnd// If same, it is at end, go away
+CallPreinitsLoop:
+	ldr r5, =__init_array_start
+	ldr r4, =__init_array_end // Yes, order is funny to say the least
+	ldr r3, [r0]
+	blx r3
+	adds r0, r0, #4
+	b CallPreinitsLoopCond
+CallPreinitsEnd:
+
+	ldr r3, =_init
+	adds r3, r12
+	ldr r5, =__init_array_start
+	adds r5, r12
+	ldr r4, =__init_array_end
+	adds r4, r12
+	blx r3
+
+	// r4, r5 untouched or good, hopefully
+CallInitsInit:
+CallInitsLoopCond:
+	cmp r5, r4
+	beq CallInitsEnd
+CallInitsLoop:
+	ldr r3, [r5]
+	adds r3, r3, r12
+	blx r3
+	adds r5, r5, #4
+	b CallInitsLoopCond
+CallInitsEnd:
+	movs r0, #0
+	movs r1, #0
+	movs r2, #0
+	movs r3, #0
+	movs r4, #0
+	movs r5, #0
 
 
 ldr   r11, =0xDEB00180;
