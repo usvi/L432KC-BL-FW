@@ -73,25 +73,6 @@ Reset_Handler:
 	str r12, [r8]
 	movs r8, #0
 
-// Copy and fix the got
-	//ldr r10, =_ram_start
-	//ldr r11, =_flash_start
-
-	//ldr r1, =_got_start
-	//movs r2, r1       // Location in ram
-	//subs r1, r1, r10  // Offset (in ram)
-	//adds r1, r1, r11  // Unpatched location in flash
-	//adds r1, r1, r12  // Patched location in flash
-
-	//ldr r3, =_got_end
-	//movs r4, r3       // Location in ram
-	//subs r3, r2, r10  // Offset (in ram)
-	//adds r3, r2, r11  // Unpatched location in flash
-	//adds r3, r2, r12  // Patched location in flash
-
-	//ldr r9,
-
-
 GotPatchLoopInit:
 	movs r0, #0 // Loop variable
 GotPatchLoopCond:
@@ -111,24 +92,16 @@ GotPatchLoopBody:
 	adds r3, r3, r2 // Add plain offset
 	adds r3, r3, r1 // Add loop offset to reading from flash
 	ldr r3, [r3] // Load actual table data from flash
-	ldr r4, =_ram_end // Assemble limit to check if over end of ram, in which case don't modify (it is a peripheral)
-	cmp r3, r4 // Compare address from got and end of ram
-	bhs GotStoreTableAddressToRam // If address higher or same (hs) than end of ram, branch to copy got address as is
-	ldr r4, =_ram_start // Assemble limit to check if over start of ram, in which case branch to zero ram
+	ldr r4, =_ram_start // Assemble limit to check if over start of ram, in which case don't modify (it is ram or a peripheral)
 	cmp r3, r4 // Compare address from got and start of ram
-	bhs GotZeroRam // If address higher or same (hs) than start of ram, branch to zero the ram so it does not contain garbage
-	ldr r4, =_flash_end // Assemble limit to check if over start of flash, in which case something is just wrong, so branch to store and hope for the best
+	bhs GotStoreTableAddressToRam // If address higher or same (hs) than start of ram, branch to copy got address as is
+	ldr r4, =_flash_end // Assemble limit to check if over end of flash, in which case something is just wrong, so branch to store and hope for the best
 	cmp r3, r4 // Compare address from got and end of flash
 	bhs GotStoreTableAddressToRam // If address address higher or same (hs) than end of flash, branch to store got table address data and hope for the best
 	ldr r4, =_flash_start // Assemble limit to check if under start of flash, in which case something is just wrong, so branch to store and hope for the best
 	cmp r3, r4 // Compare address from got and start of flash
 	blo GotStoreTableAddressToRam // If address address lower (lo) than start of flash, branch to store got table address data and hope for the best
-	// Inside actual flash area in r3, need to patch it with firmware offset. Because afterwards it also points to flash, there is no need to copy it to ram, right?
-	adds r3, r3, r12 // Add flash firmware offset
-	b GotStoreTableAddressToRam
-GotZeroRam:
-	movs r4, #0 // Put the zero thing to register
-	str r4, [r3] // r3 has the ram address which was in got, for example 200001b8, so zero it
+	adds r3, r3, r12 // Finally a position in flash. Add the offset.
 GotStoreTableAddressToRam:
 	ldr r4, =_ram_start// Start getting address in ram where to put the table address value
 	adds r4, r4, r2 // Add plain offset of got
@@ -200,52 +173,7 @@ LoopFillZerobss:
 
 /* Call static constructors */
 ldr   r11, =0xDEB00170;
-//    bl __libc_init_array
-
-// Make our own __libc_init_array
-CallPreinitsInit:
-	ldr r0, =__preinit_array_start
-	adds r0, r12
-	ldr r1, =__preinit_array_end
-	adds r1, r12
-CallPreinitsLoopCond:
-	cmp r0, r1
-	beq CallPreinitsEnd// If same, it is at end, go away
-CallPreinitsLoop:
-	ldr r5, =__init_array_start
-	ldr r4, =__init_array_end // Yes, order is funny to say the least
-	ldr r3, [r0]
-	blx r3
-	adds r0, r0, #4
-	b CallPreinitsLoopCond
-CallPreinitsEnd:
-
-	ldr r3, =_init
-	adds r3, r12
-	ldr r5, =__init_array_start
-	adds r5, r12
-	ldr r4, =__init_array_end
-	adds r4, r12
-	blx r3
-
-	// r4, r5 untouched or good, hopefully
-CallInitsInit:
-CallInitsLoopCond:
-	cmp r5, r4
-	beq CallInitsEnd
-CallInitsLoop:
-	ldr r3, [r5]
-	adds r3, r3, r12
-	blx r3
-	adds r5, r5, #4
-	b CallInitsLoopCond
-CallInitsEnd:
-	movs r0, #0
-	movs r1, #0
-	movs r2, #0
-	movs r3, #0
-	movs r4, #0
-	movs r5, #0
+    //bl __libc_init_array
 
 
 ldr   r11, =0xDEB00180;

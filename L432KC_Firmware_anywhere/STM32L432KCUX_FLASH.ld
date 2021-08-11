@@ -47,7 +47,7 @@ MEMORY
 _ram_start = ORIGIN(RAM) ;
 _ram_end = ORIGIN(RAM) + LENGTH(RAM) ;
 _flash_start = ORIGIN(FLASH) ;
-_flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
+_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
 
 /* Sections */
 SECTIONS
