@@ -74,46 +74,69 @@ Reset_Handler:
 	movs r8, #0
 
 // Copy and fix the got
-	ldr r10, =_ram_start
-	ldr r11, =_flash_start
+	//ldr r10, =_ram_start
+	//ldr r11, =_flash_start
 
-	ldr r1, =_got_start
-	movs r2, r1       // Location in ram
-	subs r1, r1, r10  // Offset (in ram)
-	adds r1, r1, r11  // Unpatched location in flash
-	adds r1, r1, r12  // Patched location in flash
+	//ldr r1, =_got_start
+	//movs r2, r1       // Location in ram
+	//subs r1, r1, r10  // Offset (in ram)
+	//adds r1, r1, r11  // Unpatched location in flash
+	//adds r1, r1, r12  // Patched location in flash
 
-	ldr r3, =_got_end
-	movs r4, r3       // Location in ram
-	subs r3, r2, r10  // Offset (in ram)
-	adds r3, r2, r11  // Unpatched location in flash
-	adds r3, r2, r12  // Patched location in flash
+	//ldr r3, =_got_end
+	//movs r4, r3       // Location in ram
+	//subs r3, r2, r10  // Offset (in ram)
+	//adds r3, r2, r11  // Unpatched location in flash
+	//adds r3, r2, r12  // Patched location in flash
+
+	//ldr r9,
 
 
 GotPatchLoopInit:
-    movs r5, r2  // Set address pointer to got start location in ram
-    movs r6, r4  // Set check pointer to got end location in ram
+	movs r0, #0 // Loop variable
 GotPatchLoopCond:
-	cmp r5, r6  // Compare if at end of got
-	beq GotPatchEnd
+	ldr r1, = _got_start_ram
+	ldr r2, = _got_end_ram
+	subs r2, r2, r1 // How many bytes is the lenght
+	cmp r0, r2 // Check if loop is at end
+	beq GotPatchEnd // Jump to end if compare equal
 GotPatchLoopBody:
-	movs r8, r5  // Save original ram data pointer value
-	add r5, r5, #4 // Update counter to next already
-	subs r8, r8, r10 // Remove ram offset to get plain offset
-	adds r8, r8, r11 // And add flash offset from beginning of all flash
-	adds r8, r8, r12 // Add firmware relocation offset to get final flash position
-	ldr r7, [r8] // Load the actual data from flash
-	cmp r7, r1   // Compare data to the r1 = Patched location in flash
-	bhs GotStoreToRam // If the compare was higher or same, it is in righ location, dont patch, just store directly to ram
-	adds r7, r7, r12 // Still here, so patching the actual value with relocation offset.
-GotStoreToRam:
-	subs r8, r8, r11 // r8 points to actual flash position, remove full flash offset
-	subs r8, r8, r12 // Remove relocation offset so we have plain offset
-	adds r8, r8, r10 // And add ram offset to get proper ram value
-	str r7, [r8] // Store the modified value
+	movs r1, r0 // Copy original loop counter value to r1
+	adds r0, r0, #4 // Increase original loop counter r0
+	ldr r2, = _got_start_ram // Load got ram start
+	ldr r3, = _ram_start // Load actual ram start
+	subs r2, r2, r3 // r2 now has plain got offset from where ever
+	ldr r3, = _flash_start // Start to assemble flash position
+	adds r3, r3, r12 // Add firmware offset
+	adds r3, r3, r2 // Add plain offset
+	adds r3, r3, r1 // Add loop offset to reading from flash
+	ldr r3, [r3] // Load actual table data from flash
+	ldr r4, =_ram_end // Assemble limit to check if over end of ram, in which case don't modify (it is a peripheral)
+	cmp r3, r4 // Compare address from got and end of ram
+	bhs GotStoreTableAddressToRam // If address higher or same (hs) than end of ram, branch to copy got address as is
+	ldr r4, =_ram_start // Assemble limit to check if over start of ram, in which case branch to zero ram
+	cmp r3, r4 // Compare address from got and start of ram
+	bhs GotZeroRam // If address higher or same (hs) than start of ram, branch to zero the ram so it does not contain garbage
+	ldr r4, =_flash_end // Assemble limit to check if over start of flash, in which case something is just wrong, so branch to store and hope for the best
+	cmp r3, r4 // Compare address from got and end of flash
+	bhs GotStoreTableAddressToRam // If address address higher or same (hs) than end of flash, branch to store got table address data and hope for the best
+	ldr r4, =_flash_start // Assemble limit to check if under start of flash, in which case something is just wrong, so branch to store and hope for the best
+	cmp r3, r4 // Compare address from got and start of flash
+	blo GotStoreTableAddressToRam // If address address lower (lo) than start of flash, branch to store got table address data and hope for the best
+	// Inside actual flash area in r3, need to patch it with firmware offset. Because afterwards it also points to flash, there is no need to copy it to ram, right?
+	adds r3, r3, r12 // Add flash firmware offset
+	b GotStoreTableAddressToRam
+GotZeroRam:
+	movs r4, #0 // Put the zero thing to register
+	str r4, [r3] // r3 has the ram address which was in got, for example 200001b8, so zero it
+GotStoreTableAddressToRam:
+	ldr r4, =_ram_start// Start getting address in ram where to put the table address value
+	adds r4, r4, r2 // Add plain offset of got
+	adds r4, r4, r1 // Add the original loop counter (is: 0, 4, 8, 12, ...)
+	str r3, [r4] // Add the table address to ram
 	b GotPatchLoopCond // And go to check the loop
 GotPatchEnd:
-	movs r9, r2 // Putting the location of got table to agreed register r9
+	ldr r9, =_got_start_ram // Putting the location of got table to agreed register r9
 	movs r1, 0 // Cleaning up the rest, just in case
 	movs r2, 0
 	movs r3, 0
@@ -177,7 +200,7 @@ LoopFillZerobss:
 
 /* Call static constructors */
 ldr   r11, =0xDEB00170;
-    //bl __libc_init_array
+    bl __libc_init_array
 
 
 ldr   r11, =0xDEB00180;

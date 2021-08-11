@@ -45,7 +45,9 @@ MEMORY
 }
 
 _ram_start = ORIGIN(RAM) ;
+_ram_end = ORIGIN(RAM) + LENGTH(RAM) ;
 _flash_start = ORIGIN(FLASH) ;
+_flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
 
 /* Sections */
 SECTIONS
@@ -62,9 +64,9 @@ SECTIONS
   .got :
   {
     . = ALIGN(4);
-    _got_start = .;
+    _got_start_ram = .;
     *(.got)
-    _got_end = .;
+    _got_end_ram = .;
   } >RAM AT> FLASH
     
   .got.plt :
