@@ -203,44 +203,30 @@ void SystemInit(void)
   /* Configure the Vector Table location -------------------------------------*/
   SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;
 #endif
-  asm("ldr   r11, =0xDEB00030");
 
   /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
   SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
-  asm("ldr   r11, =0xDEB00040");
 
   /* Reset the RCC clock configuration to the default reset state ------------*/
   /* Set MSION bit */
   RCC->CR |= RCC_CR_MSION;
 
-  asm("ldr   r11, =0xDEB00050");
-
   /* Reset CFGR register */
   RCC->CFGR = 0x00000000U;
-
-  asm("ldr   r11, =0xDEB00060");
 
   /* Reset HSEON, CSSON , HSION, and PLLON bits */
   RCC->CR &= 0xEAF6FFFFU;
 
-  asm("ldr   r11, =0xDEB00070");
-
   /* Reset PLLCFGR register */
   RCC->PLLCFGR = 0x00001000U;
-
-  asm("ldr   r11, =0xDEB00080");
 
   /* Reset HSEBYP bit */
   RCC->CR &= 0xFFFBFFFFU;
 
-  asm("ldr   r11, =0xDEB00090");
-
   /* Disable all interrupts */
   RCC->CIER = 0x00000000U;
-
-  asm("ldr   r11, =0xDEB00100");
 }
 
 /**

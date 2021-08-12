@@ -65,7 +65,6 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
-	ldr   r11, =0xDEB00000;
 	ldr   sp, =_estack    /* Set stack pointer */
 
 	// Store r12 passed by bootloader as gu32FirmwareOffset
@@ -124,9 +123,7 @@ GotPatchEnd:
 	movs r12, 0
 
 /* Call the clock system initialization function.*/
-  	ldr   r11, =0xDEB00010;
     bl  SystemInit
-  	ldr   r11, =0xDEB00110;
 
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
@@ -135,7 +132,6 @@ GotPatchEnd:
 CopyDataInit:
 	ldr r12, =gu32FirmwareOffset
 	ldr r12, [r12]
-	ldr   r11, =0xDEB00115
 	ldr	r3, =_sidata
 	adds r3, r3, r12
 	ldr	r3, [r3, r1]
@@ -143,14 +139,11 @@ CopyDataInit:
 	adds	r1, r1, #4
 
 LoopCopyDataInit:
-	ldr   r11, =0xDEB00120
 	ldr	r0, =_sdata
-	ldr   r11, =0xDEB00130
 	ldr	r3, =_edata
 	adds	r2, r0, r1
 	cmp	r2, r3
 	bcc	CopyDataInit
-	ldr   r11, =0xDEB00140
 	ldr	r2, =_sbss
 	adds r2, r2, r12
 	b	LoopFillZerobss
@@ -162,13 +155,11 @@ FillZerobss:
 LoopFillZerobss:
 	ldr r12, =gu32FirmwareOffset
 	ldr r12, [r12]
-	ldr   r11, =0xDEB00150
 	ldr	r3, =_ebss
 	cmp	r2, r3
 	bcc	FillZerobss
 
 /* Call static constructors */
-ldr   r11, =0xDEB00170;
 //    bl __libc_init_array
 
 // Make our own __libc_init_array
@@ -216,8 +207,6 @@ CallInitsEnd:
 	movs r4, #0
 	movs r5, #0
 
-
-ldr   r11, =0xDEB00180;
 
 /* Call the application's entry point.*/
 	bl	main

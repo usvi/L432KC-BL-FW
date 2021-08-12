@@ -56,8 +56,7 @@ static void MX_GPIO_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-uint32_t u32Test1 = 0xABBAACDC;
-uint32_t u32Test2 = 0xDEADBEEF;
+
 
 /**
   * @brief  The application entry point.
@@ -65,7 +64,6 @@ uint32_t u32Test2 = 0xDEADBEEF;
   */
 int main(void)
 {
-#warning Firmware configured in linker to start from 0x8000000 but .bin to be flashed to 0x8005000
   uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();
@@ -77,7 +75,7 @@ int main(void)
     //gu32FirmwareOffset++;
     u32LedCounter++;
 
-    if (((u32LedCounter + u32Test1 + u32Test2) % 0xF0000) == 0)
+    if ((u32LedCounter % 0xF0000) == 0)
     {
       u32LedCounter = 0;
       HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
