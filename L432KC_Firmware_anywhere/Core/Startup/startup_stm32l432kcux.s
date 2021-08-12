@@ -110,7 +110,8 @@ GotStoreTableAddressToRam:
 	b GotPatchLoopCond // And go to check the loop
 GotPatchEnd:
 	ldr r9, =_got_start_ram // Putting the location of got table to agreed register r9
-	movs r1, 0 // Cleaning up the rest, just in case
+	movs r0, 0 // Cleaning up the rest, just in case
+	movs r1, 0
 	movs r2, 0
 	movs r3, 0
 	movs r4, 0
@@ -142,14 +143,10 @@ CopyDataInit:
 	adds	r1, r1, #4
 
 LoopCopyDataInit:
-	ldr r12, =gu32FirmwareOffset
-	ldr r12, [r12]
 	ldr   r11, =0xDEB00120
 	ldr	r0, =_sdata
-	adds r0, r0, r12
 	ldr   r11, =0xDEB00130
 	ldr	r3, =_edata
-	adds r3, r3, r12
 	adds	r2, r0, r1
 	cmp	r2, r3
 	bcc	CopyDataInit
@@ -167,7 +164,6 @@ LoopFillZerobss:
 	ldr r12, [r12]
 	ldr   r11, =0xDEB00150
 	ldr	r3, =_ebss
-	adds r3, r3, r12
 	cmp	r2, r3
 	bcc	FillZerobss
 
