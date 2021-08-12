@@ -11,7 +11,7 @@ Bootloader: **Works. Can jump to application firmware and to even itself :D**
 
 Firmware_0x8005000: **Works when .bin flashed to 0x8005000. Bootloader jumps to the firmware fine. Flash defined in linker to start from 0x8005000. -fPIC enabled in IDE, also fixing VTOR.**
 
-Firmware_anywhere: **Works with all addresses! But we need to write own version of __libc_init_array in startup assembly. Needed extra compiler options. Check the source in Stm32CubeIde**
+Firmware_anywhere: **Works with all addresses! Needed extra compiler options and also did a __libc_init_array.**
 
 
 # Research
