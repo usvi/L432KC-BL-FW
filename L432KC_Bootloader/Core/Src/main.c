@@ -22,7 +22,7 @@
 
 static void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void vL432kc_DeInitAndJump(const uint32_t u32JumpAddress);
+static void vL432kc_DeInitAndJump(uint32_t u32JumpAddress);
 
 // From https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
 typedef void (application_t)(void);
@@ -35,7 +35,7 @@ typedef struct
 } JumpStruct;
 
 
-static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
+static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
 {
   uint32_t u32VectorAddress = 0;
 
@@ -110,6 +110,13 @@ static void vL432kc_DeInitAndJump(const uint32_t u32FwAddress)
       :"=m"(u32FirmwareOffset)
       :
       :);
+
+  // Store firmware actual address to r11
+  asm ("ldr r11, %0;"
+      :"=m"(u32FwAddress)
+      :
+      :);
+
 
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
