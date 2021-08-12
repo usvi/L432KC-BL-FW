@@ -70,7 +70,11 @@ Reset_Handler:
 	// Store r12 passed by bootloader as gu32FirmwareOffset
 	ldr r8, =gu32FirmwareOffset
 	str r12, [r8]
+	// Store r11 passed by bootloader as gu32FirmwareAbsPosition
+	ldr r8, =gu32FirmwareAbsPosition
+	str r11, [r8]
 	movs r8, #0
+	movs r11, #0
 
 GotPatchLoopInit:
 	movs r0, #0 // Loop variable
@@ -150,6 +154,14 @@ LoopCopyDataInit:
 /* Zero fill the bss segment. */
 FillZerobss:
 	movs	r3, #0
+	adds r2, r2, #4 // Increment the loop counter already so ww avoid non-ending loops
+	ldr r4, =gu32FirmwareOffset // Get firmware offset variable address
+	cmp r2, r4 // Compare address to the address we are going to zero
+	beq LoopFillZerobss // Jump away if would otherwise zero it
+	ldr r4, =gu32FirmwareAbsPosition // Get firmware abs position variable address
+	cmp r2, r4 // Compare address to the address we are going to zero
+	beq LoopFillZerobss // Jump away if would otherwise zero it
+	subs r2, r2, #4 // Remove our own increment which was needed for special cases
 	str	r3, [r2], #4
 
 LoopFillZerobss:

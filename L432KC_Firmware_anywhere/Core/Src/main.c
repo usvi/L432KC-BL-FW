@@ -45,6 +45,7 @@
 
 /* USER CODE END PV */
 uint32_t gu32FirmwareOffset;
+uint32_t gu32FirmwareAbsPosition;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -69,6 +70,10 @@ int main(void)
   SystemClock_Config();
   __enable_irq();
   MX_GPIO_Init();
+
+  uint32_t u32Debug = 0;
+  u32Debug = gu32FirmwareOffset;
+  u32Debug++;
 
   while (1)
   {
