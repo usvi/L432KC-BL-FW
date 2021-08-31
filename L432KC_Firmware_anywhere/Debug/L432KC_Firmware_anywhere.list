@@ -41,13 +41,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  18 .debug_macro  0001e810  00000000  00000000  000298b8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line   0000736e  00000000  00000000  000480c8  2**0
+ 19 .debug_line   0000736f  00000000  00000000  000480c8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_str    000b7d37  00000000  00000000  0004f436  2**0
+ 20 .debug_str    000b7d37  00000000  00000000  0004f437  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .comment      00000053  00000000  00000000  0010716d  2**0
+ 21 .comment      00000053  00000000  00000000  0010716e  2**0
                   CONTENTS, READONLY
- 22 .debug_frame  000018a0  00000000  00000000  001071c0  2**2
+ 22 .debug_frame  000018a0  00000000  00000000  001071c4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -903,8 +903,10 @@ FillZerobss:
  8000596:	d002      	beq.n	800059e <LoopFillZerobss>
 	subs r2, r2, #4 // Remove our own increment which was needed for special cases
  8000598:	3a04      	subs	r2, #4
-	str	r3, [r2], #4
- 800059a:	f842 3b04 	str.w	r3, [r2], #4
+	str	r3, [r2]
+ 800059a:	6013      	str	r3, [r2, #0]
+	adds r2, #4
+ 800059c:	3204      	adds	r2, #4
 
 0800059e <LoopFillZerobss>:
 

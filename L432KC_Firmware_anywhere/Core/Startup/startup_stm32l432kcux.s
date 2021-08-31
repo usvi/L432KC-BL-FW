@@ -162,7 +162,8 @@ FillZerobss:
 	cmp r2, r4 // Compare address to the address we are going to zero
 	beq LoopFillZerobss // Jump away if would otherwise zero it
 	subs r2, r2, #4 // Remove our own increment which was needed for special cases
-	str	r3, [r2], #4
+	str	r3, [r2]
+	adds r2, #4
 
 LoopFillZerobss:
 	ldr r12, =gu32FirmwareOffset
