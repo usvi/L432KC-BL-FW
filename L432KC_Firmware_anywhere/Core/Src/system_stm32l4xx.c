@@ -90,6 +90,7 @@
   */
 
 #include "stm32l4xx.h"
+#include "main.h"
 
 /**
   * @}
@@ -197,12 +198,13 @@
   * @retval None
   */
 
+extern uint32_t gu32FirmwareAbsPosition;
+
 void SystemInit(void)
 {
-#if defined(USER_VECT_TAB_ADDRESS)
-  /* Configure the Vector Table location -------------------------------------*/
-  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;
-#endif
+  __DMB();
+  SCB->VTOR = RAM_BEGIN; // Beginning of RAM
+  __DMB();
 
   /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)

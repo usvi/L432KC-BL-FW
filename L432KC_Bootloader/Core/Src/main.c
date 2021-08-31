@@ -122,7 +122,8 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
 
-  SCB->VTOR = u32VectorAddress;
+  //Putting this to firmware side
+  //SCB->VTOR = u32VectorAddress;
 
   // Actual jump
   asm("msr msp, %0; bx %1;" : : "r"(pxJumpVector->stack_addr), "r"(pxJumpVector->func_p));
