@@ -20,47 +20,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-// Direct hovering in debugger yields unpredictible results on
-// relocated firmware. But if properly referenced, the value is got just
-// fine via got table.
 uint32_t gu32FirmwareOffset;
 uint32_t gu32FirmwareAbsPosition;
 /* Private function prototypes -----------------------------------------------*/
+
+TIM_HandleTypeDef htim7;
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
+static void MX_TIM7_Init(void);
 
 /**
   * @brief  The application entry point.
@@ -68,26 +38,15 @@ static void MX_GPIO_Init(void);
   */
 int main(void)
 {
-  uint32_t u32LedCounter = 0;
   HAL_Init();
   SystemClock_Config();
-  __enable_irq();
   MX_GPIO_Init();
-
-  uint32_t u32Debug = 0;
-  u32Debug = gu32FirmwareOffset;
-  u32Debug++;
+  MX_TIM7_Init();
+  HAL_TIM_Base_Start_IT(&htim7);
+  __enable_irq();
 
   while (1)
   {
-    //gu32FirmwareOffset++;
-    u32LedCounter++;
-
-    if ((u32LedCounter % 0xF0000) == 0)
-    {
-      u32LedCounter = 0;
-      HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-    }
   }
 }
 
@@ -146,6 +105,53 @@ void SystemClock_Config(void)
   */
   HAL_RCCEx_EnableMSIPLLMode();
 }
+
+
+
+
+
+/**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 48000 - 1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 1000;
+  htim7.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim7.Init.RepetitionCounter = 0;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+  HAL_TIM_Base_DeInit(&htim7);
+
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim == &htim7)
+  {
+    HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
 
 /**
   * @brief GPIO Initialization Function
