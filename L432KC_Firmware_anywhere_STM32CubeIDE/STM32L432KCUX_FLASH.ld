@@ -37,44 +37,58 @@ _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 64K
-  /* Keeping flash now at 0x8000000 because I want to be able to move the image to 
-   * resulting .bin to any location in flash. Dunno if right.
-   * The .bin Should be flashed to 0x8005000 .
-   */
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K
+  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 256K
 }
 
-_ram_start = ORIGIN(RAM) ;
-_ram_end = ORIGIN(RAM) + LENGTH(RAM) ;
-_flash_start = ORIGIN(FLASH) ;
-_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
+__ram_begin = ORIGIN(RAM) ;
+__ram_end = ORIGIN(RAM) + LENGTH(RAM) ;
+__flash_begin = ORIGIN(FLASH) ;
+__flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
 
 /* Sections */
 SECTIONS
 {
-  /* The startup code into "FLASH" Rom type memory */
+  /* Interrupt vector table is at RAM, must be loaded by ourselves from flash. */
   .isr_vector :
   {
-    . = ALIGN(4);
+    . = ALIGN(256);
+    __ram_vector_table_begin = . ;
     KEEP(*(.isr_vector)) /* Startup code */
+    __ram_vector_table_end = . ;
     . = ALIGN(4);
   } >RAM AT> FLASH
+  /*  Check how LOADADDR behaves after we but stuff in the beginning */
+  __flash_vector_table_begin = LOADADDR(.isr_vector) ;
+  __flash_vector_table_end = __flash_vector_table_begin + __ram_vector_table_end - __ram_vector_table_begin ;
+  
 
-	/* GOT sections taken from https://github.com/rgujju/STM32-projects/blob/master/got_plt/stm32_linker.ld */
+  /*
+   * Global Offset Table, aka. GOT, can run from flash or RAM. Running
+   * from RAM requires additional setup which is described in Inc/pic_conf.h
+   */
+  
+  /* Global Offset Table variant where it is run from flash */
+  /*
   .got :
   {
     . = ALIGN(4);
-    _got_start_ram = .;
     *(.got)
-    _got_end_ram = .;
-  } >RAM AT> FLASH
-    
-  .got.plt :
+  } >FLASH
+  /**/
+
+  /* Global Offset Table variant where it is relocated to RAM */
+  /**/
+  .got :
   {
     . = ALIGN(4);
-    *(.got.plt)
-    /* _edata = .; */
+    __ram_global_offset_table_begin = . ;
+    *(.got)
+    __ram_global_offset_table_end = . ;
   } >RAM AT> FLASH
+  __flash_global_offset_table_begin = LOADADDR(.got) ;
+  __flash_global_offset_table_end = __flash_global_offset_table_begin + __ram_global_offset_table_end - __ram_global_offset_table_begin ;
+  /**/
+
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :

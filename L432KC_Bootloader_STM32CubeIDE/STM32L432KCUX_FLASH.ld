@@ -28,54 +28,30 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(RAM_GENERAL) + LENGTH(RAM_GENERAL);	/* end of "RAM" Ram type memory */
+_estack = ORIGIN(RAM) + LENGTH(RAM);	/* end of "RAM" Ram type memory */
 
 _Min_Heap_Size = 0x200 ;	/* required amount of heap  */
 _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 
-
-/* We have 256k flash and 64k ram.*/
-/* General layout of the chip */
-RAM_FULL_START =  0x20000000 ;
-FLASH_FULL_START = 0x8000000 ;
-
-/* Our partitioning */
-RAM_FULL_LENGTH = 64K ;
-RAM_EMPTY_LENGTH = 2K ; 
-FLASH_FULL_LENGTH = 256K ;
-FLASH_BOOTLOADER_LENGTH = 20K ;
-
 /* Memories definition */
 MEMORY
 {
-  /* Need a bit of space to freely operate on patching, for now */
-  RAM_EMPTY        (xrw)  : ORIGIN = RAM_FULL_START, LENGTH = RAM_EMPTY_LENGTH
-  RAM_GENERAL      (xrw)  : ORIGIN = ORIGIN(RAM_EMPTY) + LENGTH(RAM_EMPTY), LENGTH = RAM_FULL_LENGTH - RAM_EMPTY_LENGTH
-  FLASH_BOOTLOADER  (rx)  : ORIGIN = FLASH_FULL_START,   LENGTH = FLASH_BOOTLOADER_LENGTH
-  FLASH_FIRMWARES   (rx)  : ORIGIN = ORIGIN(FLASH_BOOTLOADER) + LENGTH(FLASH_BOOTLOADER) , LENGTH = FLASH_FULL_LENGTH - LENGTH(FLASH_BOOTLOADER)
+  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 64K
+  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 256K
 }
 
-
-__flash_firmwares_earliest_begin = ORIGIN(FLASH_FIRMWARES) ;
-
+__flash_begin = ORIGIN(FLASH) ;
 
 /* Sections */
 SECTIONS
 {
   .isr_vector :
   {
-    . = ALIGN(4);
-	__ram_vector_table_begin = . - FLASH_FULL_START + RAM_FULL_START ;
-	__flash_bootloader_begin = . ;
+    . = ALIGN(256);
     KEEP(*(.isr_vector)) /* Startup code */
-	__ram_vector_table_end = . - FLASH_FULL_START + RAM_FULL_START ;
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
-  /* ALready aligned, but just in case */
-  . = ALIGN(4);
-  __ram_got_plt_begin = . - FLASH_FULL_START + RAM_FULL_START ;
-  
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -92,7 +68,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
@@ -101,13 +77,13 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   .ARM.extab   : {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   .ARM : {
     . = ALIGN(4);
@@ -115,7 +91,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   .preinit_array     :
   {
@@ -124,7 +100,7 @@ SECTIONS
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   .init_array :
   {
@@ -134,7 +110,7 @@ SECTIONS
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
   .fini_array :
   {
@@ -144,7 +120,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
-  } >FLASH_BOOTLOADER
+  } >FLASH
 
 
   /* Used by the startup to initialize data */
@@ -163,7 +139,7 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
-  } >RAM_GENERAL AT> FLASH_BOOTLOADER
+  } >RAM AT> FLASH
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
@@ -179,7 +155,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM_GENERAL
+  } >RAM
 
   /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
   ._user_heap_stack :
@@ -190,7 +166,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM_GENERAL
+  } >RAM
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

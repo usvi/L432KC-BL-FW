@@ -30,12 +30,6 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-extern uint32_t __ram_vector_table_begin;
-extern uint32_t __ram_vector_table_end;
-extern uint32_t __ram_got_plt_begin;
-extern uint32_t __flash_bootloader_begin;
-extern uint32_t __flash_firmwares_earliest_begin;
-
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -53,13 +47,6 @@ void Error_Handler(void);
 #define SWCLK_GPIO_Port GPIOA
 #define LD3_Pin GPIO_PIN_3
 #define LD3_GPIO_Port GPIOB
-
-// Helper defines for addresses
-#define RAM_VECTOR_TABLE_BEGIN ((uint32_t)(&__ram_vector_table_begin)) /* Basically 0x20000000 */
-#define RAM_VECTOR_TABLE_END ((uint32_t)(&__ram_vector_table_end)) /* Dynamically from linker so we don't need to guessa about variants. */
-#define RAM_GOT_PLT_BEGIN ((uint32_t)(&__ram_got_plt_begin)) /* Dynamically from linker so we don't need to guessa about variants. */
-#define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_bootloader_begin)) /* Basically 0x8000000 */
-#define FLASH_FIRMWARES_EARLIEST_BEGIN ((uint32_t)(&__flash_firmwares_earliest_begin)) /* Basically 0x8005000 */
 
 
 #ifdef __cplusplus
