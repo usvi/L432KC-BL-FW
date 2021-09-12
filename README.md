@@ -13,7 +13,3 @@ Firmware_0x8005000: **Works when .bin flashed to 0x8005000. Bootloader jumps to 
 
 Firmware_anywhere: **Works with all addresses! Needed extra compiler options and also did a __libc_init_array.**
 
-
-# Research
-
-See the subdirectory [research](research/) .
