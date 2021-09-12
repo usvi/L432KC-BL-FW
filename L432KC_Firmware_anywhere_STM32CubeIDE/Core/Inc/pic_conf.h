@@ -12,6 +12,6 @@
  * -mpic-register=r9
  */
 
-#define GOT_IN_RAM
+//#define GOT_IN_RAM
 
 #endif /* #define _PIC_CONF_H_ */

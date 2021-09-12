@@ -3,9 +3,7 @@
 
 #include <stdint.h>
 
-// Direct hovering in debugger yields unpredictible results on
-// relocated firmware. But if properly referenced, the value is got just
-// fine via got table.
+// Sometimes howering might show false results in debugger, but these still have right values.
 extern uint32_t gu32FirmwareAbsPosition;
 extern uint32_t gu32FirmwareOffset;
 extern uint32_t gu32FirmwareAbsOffsetChecksum;

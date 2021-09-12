@@ -68,7 +68,7 @@ SECTIONS
    */
   
   /* Global Offset Table variant where it is run from flash */
-  /*
+  /**/
   .got :
   {
     . = ALIGN(4);
@@ -77,7 +77,7 @@ SECTIONS
   /**/
 
   /* Global Offset Table variant where it is relocated to RAM */
-  /**/
+  /*
   .got :
   {
     . = ALIGN(4);
