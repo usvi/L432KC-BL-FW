@@ -118,7 +118,7 @@ void SystemClock_Config(void)
 static void MX_TIM7_Init(void)
 {
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 48000 - 1;
+  htim7.Init.Prescaler = 80000 - 1;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 1000;
   htim7.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
