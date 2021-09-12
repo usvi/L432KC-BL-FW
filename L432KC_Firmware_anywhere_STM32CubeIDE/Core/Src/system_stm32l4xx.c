@@ -92,6 +92,8 @@
 #include "stm32l4xx.h"
 #include "main.h"
 
+#include "image_info.h"
+
 /**
   * @}
   */
@@ -203,7 +205,7 @@ extern uint32_t gu32FirmwareAbsPosition;
 void SystemInit(void)
 {
   __DMB();
-  SCB->VTOR = RAM_BEGIN; // Beginning of RAM
+  SCB->VTOR = gu32RamVectorTableBegin;
   __DMB();
 
   /* FPU settings ------------------------------------------------------------*/

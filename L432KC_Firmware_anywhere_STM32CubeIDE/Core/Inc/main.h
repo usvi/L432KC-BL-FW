@@ -30,7 +30,6 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-extern uint32_t _ram_start;
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
@@ -49,8 +48,6 @@ void Error_Handler(void);
 #define LD3_Pin GPIO_PIN_3
 #define LD3_GPIO_Port GPIOB
 
-// Helper defines for addresses
-#define RAM_BEGIN ((uint32_t)(&_ram_start)) /* Basically 0x20000000 */
 
 #ifdef __cplusplus
 }
