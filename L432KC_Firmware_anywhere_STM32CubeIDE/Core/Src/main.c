@@ -26,11 +26,12 @@ uint32_t gu32FirmwareOffset;
 uint32_t gu32FirmwareAbsPosition;
 /* Private function prototypes -----------------------------------------------*/
 
-TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef gtHtim7;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_TIM7_DeInit(void);
 
 /**
   * @brief  The application entry point.
@@ -41,14 +42,16 @@ int main(void)
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
+  MX_TIM7_DeInit(); // Without this fails at times
   MX_TIM7_Init();
-  HAL_TIM_Base_Start_IT(&htim7);
+  HAL_TIM_Base_Start_IT(&gtHtim7);
   __enable_irq();
 
   while (1)
   {
   }
 }
+
 
 /**
   * @brief System Clock Configuration
@@ -107,50 +110,48 @@ void SystemClock_Config(void)
 }
 
 
-
-
-
 /**
-  * @brief TIM16 Initialization Function
+  * @brief TIM7 Initialization Function
   * @param None
   * @retval None
   */
 static void MX_TIM7_Init(void)
 {
-  htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 80000 - 1;
-  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 1000;
-  htim7.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim7.Init.RepetitionCounter = 0;
-  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  HAL_TIM_Base_DeInit(&htim7);
+  gtHtim7.Instance = TIM7;
+  gtHtim7.Init.Prescaler = 32000 - 1;
+  gtHtim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  gtHtim7.Init.Period = 1000;
+  gtHtim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
-  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  if (HAL_TIM_Base_Init(&gtHtim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&gtHtim7, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
 }
 
 
+static void MX_TIM7_DeInit(void)
+{
+  HAL_TIM_Base_DeInit(&gtHtim7);
+}
+
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim == &htim7)
+  if (htim == &gtHtim7)
   {
     HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
   }
 
 }
-
-
-
-
-
-
-
-
-
 
 
 /**

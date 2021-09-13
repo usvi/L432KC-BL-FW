@@ -56,7 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef gtHtim7;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -205,11 +205,17 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles TIM16 global interrupt.
+  * @brief This function handles TIM7 global interrupt.
   */
 void TIM7_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(&htim7);
+  /* USER CODE BEGIN TIM7_IRQn 0 */
+
+  /* USER CODE END TIM7_IRQn 0 */
+  HAL_TIM_IRQHandler(&gtHtim7);
+  /* USER CODE BEGIN TIM7_IRQn 1 */
+
+  /* USER CODE END TIM7_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
