@@ -20,12 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-
-
-uint32_t gu32FirmwareOffset;
-uint32_t gu32FirmwareAbsPosition;
-/* Private function prototypes -----------------------------------------------*/
-
 TIM_HandleTypeDef gtHtim7;
 
 void SystemClock_Config(void);
