@@ -26,7 +26,7 @@ extern uint32_t __flash_begin;
 extern uint32_t __flash_end;
 
 #define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_begin)) /* Basically 0x8000000 */
-#define FLASH_END ((uint32_t)(&__flash_end)) /* Basically 0x8040000 */
+//#define FLASH_END ((uint32_t)(&__flash_end)) /* Basically 0x8040000 */
 
 
 static void SystemClock_Config(void);
@@ -109,10 +109,10 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
 int main(void)
 {
   uint32_t u32LedCounter = 0;
-  uint8_t au8EmptyFlashBuffer[512] = { 0 };
-  uint8_t au8ReadFlashBuffer[512] = { 0 };
+  // uint8_t au8EmptyFlashBuffer[512] = { 0 };
+  // uint8_t au8ReadFlashBuffer[512] = { 0 };
 
-  memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
+  // memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
