@@ -41,13 +41,17 @@ MEMORY
 }
 
 __flash_begin = ORIGIN(FLASH) ;
+__flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
 
 /* Sections */
 SECTIONS
 {
   .isr_vector :
   {
-    . = ALIGN(256);
+    /* Isr vectors need to be 512 byte aligned due to
+    VTOR and/or other platform requirements.
+    */
+    . = ALIGN(512);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
