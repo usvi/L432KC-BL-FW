@@ -51,7 +51,10 @@ SECTIONS
   /* Interrupt vector table is at RAM, must be loaded by ourselves from flash. */
   .isr_vector :
   {
-    . = ALIGN(256);
+    /* Isr vectors need to be 512 byte aligned due to
+    VTOR and/or other platform requirements.
+    */
+    . = ALIGN(512);
     __ram_vector_table_begin = . ;
     KEEP(*(.isr_vector)) /* Startup code */
     __ram_vector_table_end = . ;
