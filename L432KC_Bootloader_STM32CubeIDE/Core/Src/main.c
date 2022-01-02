@@ -22,11 +22,15 @@
 
 #include <string.h>
 
-extern uint32_t __flash_begin;
-extern uint32_t __flash_end;
+extern uint32_t __flash_bootloader_begin;
+extern uint32_t __flash_fwarea_begin;
+extern uint32_t __flash_fwarea_end;
 
-#define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_begin)) /* Basically 0x8000000 */
-//#define FLASH_END ((uint32_t)(&__flash_end)) /* Basically 0x8040000 */
+#define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_bootloader_begin)) /* Basically 0x8000000 */
+#define FLASH_FWAREA_BEGIN ((uint32_t)(&__flash_fwarea_begin)) /* Basically 0x8005000 */
+#define FLASH_FWAREA_END_BOUNDARY ((uint32_t)(&__flash_fwarea_end)) /* Basically 0x8040000 */
+
+//#define FLASH_END_BOUNDARY ((uint32_t)(&__flash_end)) /* Basically 0x8040000 */
 
 
 static void SystemClock_Config(void);
@@ -38,6 +42,7 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
 {
   uint32_t u32FirmwareStackPointerAddress = 0;
   uint32_t u32FirmwareResetHandlerAddress = 0;
+
   uint32_t u32FirmwareOffset = u32FwAddress - FLASH_BOOTLOADER_BEGIN;
   uint32_t* pu32FwFlashPointer = (uint32_t*)u32FwAddress;
   uint32_t u32RegistersChecksum = 0;
@@ -109,14 +114,43 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
 int main(void)
 {
   uint32_t u32LedCounter = 0;
-  // uint8_t au8EmptyFlashBuffer[512] = { 0 };
-  // uint8_t au8ReadFlashBuffer[512] = { 0 };
+  uint8_t au8EmptyFlashBuffer[512] = { 0 };
+  uint8_t au8ReadFlashBuffer[512] = { 0 };
+  uint32_t u32MaxBufReads = FLASH_FWAREA_END_BOUNDARY - FLASH_FWAREA_BEGIN;
+  uint32_t u32ReadNum;
+  uint32_t u32JumpAddress = FLASH_FWAREA_BEGIN; // Default jump address
+  uint32_t* pu32FwFlashReadPointer = (uint32_t*)FLASH_FWAREA_BEGIN;
+  uint8_t u8Continue = 1;
 
-  // memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
+  memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
 
+  // the LED on during our flash scavenging
+  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+
+  for (u32ReadNum = 0; (u32ReadNum < u32MaxBufReads) && u8Continue; u32ReadNum++)
+  {
+    memcpy(au8ReadFlashBuffer, pu32FwFlashReadPointer, 512);
+
+    if (memcmp(au8ReadFlashBuffer, au8EmptyFlashBuffer, 512) != 0)
+    {
+      // Found something
+      u32JumpAddress = (uint32_t)pu32FwFlashReadPointer;
+      // Need to go trough in 4 byte increments and see what is here
+      // Use the same things
+      for (u32ReadNum = 0; (u32ReadNum < (512 / 4)) && u8Continue; u32ReadNum++)
+      {
+        if (memcmp(au8EmptyFlashBuffer, pu32FwFlashReadPointer + (u32ReadNum * 4), 4) != 0)
+        {
+          u32JumpAddress += (u32ReadNum * 4);
+          u8Continue = 0;
+        }
+      }
+    }
+    pu32FwFlashReadPointer += 512;
+  }
   // Run high frequency for a brief while, then jump
   for (u32LedCounter = 0; u32LedCounter < 0x120000; u32LedCounter++)
   {
@@ -125,15 +159,12 @@ int main(void)
       HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
     }
   }
-  // Leave LED off
+
+  // Finally leave the LED off
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
-
-
-
   // Deinit and jump
-  vL432kc_DeInitAndJump(0x8005000); // << works if Firmware anywhere flashed here
-
+  vL432kc_DeInitAndJump(u32JumpAddress); // << works if Firmware anywhere flashed here
 
   while (1)
   {
