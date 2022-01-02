@@ -27,10 +27,19 @@ static void MX_GPIO_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM7_DeInit(void);
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
+
+/* GOT is always in RAM. We need some settings in
+ * [project] properties => C/C++ Build => Settings => MCU GCC Compiler => Miscallaneous
+ *
+ * Basically everything works with this two enabled:
+ * -fpic
+ * -msingle-pic-base
+ *
+ * These seem to be actually optional:
+ *
+ * -mno-pic-data-is-text-relative
+ * -mpic-register=r9
+ */
 int main(void)
 {
   HAL_Init();
