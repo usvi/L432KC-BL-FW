@@ -115,8 +115,8 @@ int main(void)
   uint32_t u32LedCounter = 0;
   uint8_t au8EmptyFlashBuffer[512] = { 0 };
   uint8_t au8ReadFlashBuffer[512] = { 0 };
-  uint32_t u32MaxBufReads = FLASH_FWAREA_END_BOUNDARY - FLASH_FWAREA_BEGIN;
-  uint32_t u32ReadNum;
+  uint32_t u32MaxBufReads = (FLASH_FWAREA_END_BOUNDARY - FLASH_FWAREA_BEGIN) / 512;
+  uint32_t u32ReadNum = 0;
   uint32_t u32JumpAddress = FLASH_FWAREA_BEGIN; // Default jump address
   uint32_t* pu32FwFlashReadPointer = (uint32_t*)FLASH_FWAREA_BEGIN;
   uint8_t u8Continue = 1;
