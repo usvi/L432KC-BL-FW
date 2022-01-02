@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_macro  0001f8da  00000000  00000000  0002f920  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   0000ceec  00000000  00000000  0004f1fa  2**0
+ 18 .debug_line   0000ceea  00000000  00000000  0004f1fa  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000c243d  00000000  00000000  0005c0e6  2**0
+ 19 .debug_str    000c243d  00000000  00000000  0005c0e4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000053  00000000  00000000  0011e523  2**0
+ 20 .comment      00000053  00000000  00000000  0011e521  2**0
                   CONTENTS, READONLY
  21 .debug_ranges 00000b70  00000000  00000000  0011e578  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -1198,102 +1198,104 @@ VectorTableCopyPatchEnd:
 
 
 /* Copy the data segment initializers from flash to SRAM */
-  movs  r1, #0
- 80006d0:	2100      	movs	r1, #0
-  b LoopCopyDataInit
- 80006d2:	e006      	b.n	80006e2 <LoopCopyDataInit>
-
-080006d4 <CopyDataInit>:
-
-CopyDataInit:
-  ldr r3, =_sidata
- 80006d4:	4b31      	ldr	r3, [pc, #196]	; (800079c <LoopForever+0x38>)
+  ldr r0, =_sdata
+ 80006d0:	4832      	ldr	r0, [pc, #200]	; (800079c <LoopForever+0x38>)
+  ldr r1, =_edata
+ 80006d2:	4933      	ldr	r1, [pc, #204]	; (80007a0 <LoopForever+0x3c>)
+  ldr r2, =_sidata
+ 80006d4:	4a33      	ldr	r2, [pc, #204]	; (80007a4 <LoopForever+0x40>)
   ldr r7, =gu32FirmwareOffset // Load firmware offset variable address
  80006d6:	4f26      	ldr	r7, [pc, #152]	; (8000770 <LoopForever+0xc>)
   ldr r7, [r7] // Load the actual firmware offset variable data
  80006d8:	683f      	ldr	r7, [r7, #0]
-  adds r3, r3, r7 // Patch the sidata location with offset
- 80006da:	19db      	adds	r3, r3, r7
-  ldr r3, [r3, r1]
- 80006dc:	585b      	ldr	r3, [r3, r1]
-  str r3, [r0, r1]
- 80006de:	5043      	str	r3, [r0, r1]
-  adds  r1, r1, #4
- 80006e0:	3104      	adds	r1, #4
+  adds r2, r2, r7 // Patch the sidata location with offset
+ 80006da:	19d2      	adds	r2, r2, r7
+  movs r3, #0
+ 80006dc:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 80006de:	e002      	b.n	80006e6 <LoopCopyDataInit>
 
-080006e2 <LoopCopyDataInit>:
+080006e0 <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 80006e0:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 80006e2:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 80006e4:	3304      	adds	r3, #4
+
+080006e6 <LoopCopyDataInit>:
 
 LoopCopyDataInit:
-  ldr r0, =_sdata
- 80006e2:	482f      	ldr	r0, [pc, #188]	; (80007a0 <LoopForever+0x3c>)
-  ldr r3, =_edata
- 80006e4:	4b2f      	ldr	r3, [pc, #188]	; (80007a4 <LoopForever+0x40>)
-  adds  r2, r0, r1
- 80006e6:	1842      	adds	r2, r0, r1
-  cmp r2, r3
- 80006e8:	429a      	cmp	r2, r3
+  adds r4, r0, r3
+ 80006e6:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 80006e8:	428c      	cmp	r4, r1
   bcc CopyDataInit
- 80006ea:	d3f3      	bcc.n	80006d4 <CopyDataInit>
-  ldr r2, =_sbss
- 80006ec:	4a2e      	ldr	r2, [pc, #184]	; (80007a8 <LoopForever+0x44>)
-  b LoopFillZerobss
- 80006ee:	e00e      	b.n	800070e <LoopFillZerobss>
-
-080006f0 <FillZerobss>:
+ 80006ea:	d3f9      	bcc.n	80006e0 <CopyDataInit>
 
 /* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 80006ec:	4a2e      	ldr	r2, [pc, #184]	; (80007a8 <LoopForever+0x44>)
+  ldr r4, =_ebss
+ 80006ee:	4c2f      	ldr	r4, [pc, #188]	; (80007ac <LoopForever+0x48>)
+  movs r3, #0
+ 80006f0:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 80006f2:	e00d      	b.n	8000710 <LoopFillZerobss>
+
+080006f4 <FillZerobss>:
+
 FillZerobss:
   // Here we need to check that we are not zeroing out addresses or needed symbols
 
   ldr r6, =gu32FirmwareAbsPosition // Load address of absolute firmware position variable
- 80006f0:	4e1e      	ldr	r6, [pc, #120]	; (800076c <LoopForever+0x8>)
+ 80006f4:	4e1d      	ldr	r6, [pc, #116]	; (800076c <LoopForever+0x8>)
   cmp r2, r6 // Compare with what we are going to zero
- 80006f2:	42b2      	cmp	r2, r6
+ 80006f6:	42b2      	cmp	r2, r6
   beq FillZerobssSkip // If we should skip zeroing, jump away
- 80006f4:	d00a      	beq.n	800070c <FillZerobssSkip>
+ 80006f8:	d009      	beq.n	800070e <FillZerobssSkip>
 
   ldr r6, =gu32FirmwareOffset // Load address of firmware offset variable
- 80006f6:	4e1e      	ldr	r6, [pc, #120]	; (8000770 <LoopForever+0xc>)
+ 80006fa:	4e1d      	ldr	r6, [pc, #116]	; (8000770 <LoopForever+0xc>)
   cmp r2, r6 // Compare with what we are going to zero
- 80006f8:	42b2      	cmp	r2, r6
+ 80006fc:	42b2      	cmp	r2, r6
   beq FillZerobssSkip // If we should skip zeroing, jump away
- 80006fa:	d007      	beq.n	800070c <FillZerobssSkip>
+ 80006fe:	d006      	beq.n	800070e <FillZerobssSkip>
 
   ldr r6, =gu32FirmwareAbsOffsetChecksum // Load address of firmware position and offset checksum
- 80006fc:	4e1d      	ldr	r6, [pc, #116]	; (8000774 <LoopForever+0x10>)
+ 8000700:	4e1c      	ldr	r6, [pc, #112]	; (8000774 <LoopForever+0x10>)
   cmp r2, r6 // Compare with what we are going to zero
- 80006fe:	42b2      	cmp	r2, r6
+ 8000702:	42b2      	cmp	r2, r6
   beq FillZerobssSkip // If we should skip zeroing, jump away
- 8000700:	d004      	beq.n	800070c <FillZerobssSkip>
+ 8000704:	d003      	beq.n	800070e <FillZerobssSkip>
 
-  ldr r6, =gu32RamVectorTableBegin // Load address of ram vector table begin variable
- 8000702:	4e1e      	ldr	r6, [pc, #120]	; (800077c <LoopForever+0x18>)
+  ldr r6, =gu32RamVectorTableBegin // Vector table location in RAM
+ 8000706:	4e1d      	ldr	r6, [pc, #116]	; (800077c <LoopForever+0x18>)
   cmp r2, r6 // Compare with what we are going to zero
- 8000704:	42b2      	cmp	r2, r6
+ 8000708:	42b2      	cmp	r2, r6
   beq FillZerobssSkip // If we should skip zeroing, jump away
- 8000706:	d001      	beq.n	800070c <FillZerobssSkip>
+ 800070a:	d000      	beq.n	800070e <FillZerobssSkip>
 
-  movs  r3, #0 // Load zero for storing
- 8000708:	2300      	movs	r3, #0
+
+
   str  r3, [r2] // If not escaped yet, make the store
- 800070a:	6013      	str	r3, [r2, #0]
+ 800070c:	6013      	str	r3, [r2, #0]
 
-0800070c <FillZerobssSkip>:
+0800070e <FillZerobssSkip>:
 
 FillZerobssSkip:
   adds r2, r2, #4
- 800070c:	3204      	adds	r2, #4
+ 800070e:	3204      	adds	r2, #4
 
-0800070e <LoopFillZerobss>:
+08000710 <LoopFillZerobss>:
 
 LoopFillZerobss:
-  ldr r3, = _ebss
- 800070e:	4b27      	ldr	r3, [pc, #156]	; (80007ac <LoopForever+0x48>)
-  cmp r2, r3
- 8000710:	429a      	cmp	r2, r3
+  cmp r2, r4
+ 8000710:	42a2      	cmp	r2, r4
   bcc FillZerobss
- 8000712:	d3ed      	bcc.n	80006f0 <FillZerobss>
-
+ 8000712:	d3ef      	bcc.n	80006f4 <FillZerobss>
 
 
 /* Call the clock system initialization function.*/
@@ -1446,15 +1448,15 @@ LoopForever:
  8000794:	08000000 	.word	0x08000000
   ldr r3, =__flash_vector_table_end // And need end for checking loop
  8000798:	0800018c 	.word	0x0800018c
-  ldr r3, =_sidata
- 800079c:	08002274 	.word	0x08002274
   ldr r0, =_sdata
- 80007a0:	200001ac 	.word	0x200001ac
-  ldr r3, =_edata
- 80007a4:	200001b8 	.word	0x200001b8
+ 800079c:	200001ac 	.word	0x200001ac
+  ldr r1, =_edata
+ 80007a0:	200001b8 	.word	0x200001b8
+  ldr r2, =_sidata
+ 80007a4:	08002274 	.word	0x08002274
   ldr r2, =_sbss
  80007a8:	200001c4 	.word	0x200001c4
-  ldr r3, = _ebss
+  ldr r4, =_ebss
  80007ac:	20000240 	.word	0x20000240
   ldr r0, =__preinit_array_start
  80007b0:	0800226c 	.word	0x0800226c

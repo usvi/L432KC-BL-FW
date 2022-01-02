@@ -214,28 +214,31 @@ VectorTableCopyPatchEnd:
 
 
 /* Copy the data segment initializers from flash to SRAM */
-  movs  r1, #0
+  ldr r0, =_sdata
+  ldr r1, =_edata
+  ldr r2, =_sidata
+  ldr r7, =gu32FirmwareOffset // Load firmware offset variable address
+  ldr r7, [r7] // Load the actual firmware offset variable data
+  adds r2, r2, r7 // Patch the sidata location with offset
+  movs r3, #0
   b LoopCopyDataInit
 
 CopyDataInit:
-  ldr r3, =_sidata
-  ldr r7, =gu32FirmwareOffset // Load firmware offset variable address
-  ldr r7, [r7] // Load the actual firmware offset variable data
-  adds r3, r3, r7 // Patch the sidata location with offset
-  ldr r3, [r3, r1]
-  str r3, [r0, r1]
-  adds  r1, r1, #4
+  ldr r4, [r2, r3]
+  str r4, [r0, r3]
+  adds r3, r3, #4
 
 LoopCopyDataInit:
-  ldr r0, =_sdata
-  ldr r3, =_edata
-  adds  r2, r0, r1
-  cmp r2, r3
+  adds r4, r0, r3
+  cmp r4, r1
   bcc CopyDataInit
-  ldr r2, =_sbss
-  b LoopFillZerobss
 
 /* Zero fill the bss segment. */
+  ldr r2, =_sbss
+  ldr r4, =_ebss
+  movs r3, #0
+  b LoopFillZerobss
+
 FillZerobss:
   // Here we need to check that we are not zeroing out addresses or needed symbols
 
@@ -251,21 +254,20 @@ FillZerobss:
   cmp r2, r6 // Compare with what we are going to zero
   beq FillZerobssSkip // If we should skip zeroing, jump away
 
-  ldr r6, =gu32RamVectorTableBegin // Load address of ram vector table begin variable
+  ldr r6, =gu32RamVectorTableBegin // Vector table location in RAM
   cmp r2, r6 // Compare with what we are going to zero
   beq FillZerobssSkip // If we should skip zeroing, jump away
 
-  movs  r3, #0 // Load zero for storing
+
+
   str  r3, [r2] // If not escaped yet, make the store
 
 FillZerobssSkip:
   adds r2, r2, #4
 
 LoopFillZerobss:
-  ldr r3, = _ebss
-  cmp r2, r3
+  cmp r2, r4
   bcc FillZerobss
-
 
 
 /* Call the clock system initialization function.*/

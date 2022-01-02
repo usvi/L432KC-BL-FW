@@ -48,9 +48,9 @@ SECTIONS
 {
   .isr_vector :
   {
-    /* Isr vectors need to be 512 byte aligned due to
-    VTOR and/or other platform requirements.
-    */
+    /* Isr vectors need to be 512 byte aligned due to VTOR and/or other */
+    /* platform requirements. (Reference manual says: The minimum alignment is 128 words)  */
+
     . = ALIGN(512);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
