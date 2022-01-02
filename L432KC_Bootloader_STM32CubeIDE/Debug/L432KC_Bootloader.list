@@ -284,6 +284,7 @@ int main(void)
  80002e0:	21ff      	movs	r1, #255	; 0xff
  80002e2:	4618      	mov	r0, r3
  80002e4:	f001 fd44 	bl	8001d70 <memset>
+
   HAL_Init();
  80002e8:	f000 f9fb 	bl	80006e2 <HAL_Init>
   SystemClock_Config();

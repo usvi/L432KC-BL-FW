@@ -22,6 +22,7 @@
 
 #include <string.h>
 
+
 extern uint32_t __flash_bootloader_begin;
 extern uint32_t __flash_fwarea_begin;
 extern uint32_t __flash_fwarea_end;
@@ -29,8 +30,6 @@ extern uint32_t __flash_fwarea_end;
 #define FLASH_BOOTLOADER_BEGIN ((uint32_t)(&__flash_bootloader_begin)) /* Basically 0x8000000 */
 #define FLASH_FWAREA_BEGIN ((uint32_t)(&__flash_fwarea_begin)) /* Basically 0x8005000 */
 #define FLASH_FWAREA_END_BOUNDARY ((uint32_t)(&__flash_fwarea_end)) /* Basically 0x8040000 */
-
-//#define FLASH_END_BOUNDARY ((uint32_t)(&__flash_end)) /* Basically 0x8040000 */
 
 
 static void SystemClock_Config(void);
@@ -123,6 +122,7 @@ int main(void)
   uint8_t u8Continue = 1;
 
   memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
+
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
