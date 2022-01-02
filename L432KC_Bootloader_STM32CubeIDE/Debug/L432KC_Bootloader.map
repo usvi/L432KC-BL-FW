@@ -2507,7 +2507,7 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
                 0x0000000008040000                __flash_end = (ORIGIN (FLASH) + LENGTH (FLASH))
 
 .isr_vector     0x0000000008000000      0x18c
-                0x0000000008000000                . = ALIGN (0x100)
+                0x0000000008000000                . = ALIGN (0x200)
  *(.isr_vector)
  .isr_vector    0x0000000008000000      0x18c Core/Startup/startup_stm32l432kcux.o
                 0x0000000008000000                g_pfnVectors
