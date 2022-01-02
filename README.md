@@ -8,7 +8,7 @@ Quick statuses
 
 Bootloader: **Works. Automaticly jumps to first non-empty position in firmware area.**
 
-Firmware_anywhere: **Works with all addresses sufficiently alignedwhen booted by bootloader. Works also standalone.**
+Firmware_anywhere: **Works with all addresses sufficiently aligned when booted by bootloader. Works also standalone.**
 
 VTOR and thus basically the whole image needs to be aligned to 512 bytes in Cortex-M4.
 
