@@ -370,9 +370,9 @@ int main(void)
         }
       }
     }
-    pu32FwFlashReadPointer += 512;
+    pu32FwFlashReadPointer += (512/4);
  8000392:	f8d7 3408 	ldr.w	r3, [r7, #1032]	; 0x408
- 8000396:	f503 6300 	add.w	r3, r3, #2048	; 0x800
+ 8000396:	f503 7300 	add.w	r3, r3, #512	; 0x200
  800039a:	f8c7 3408 	str.w	r3, [r7, #1032]	; 0x408
   for (u32ReadNum = 0; (u32ReadNum < u32MaxBufReads) && u8Continue; u32ReadNum++)
  800039e:	f8d7 3410 	ldr.w	r3, [r7, #1040]	; 0x410

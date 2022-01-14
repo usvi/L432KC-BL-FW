@@ -528,6 +528,11 @@ Discarded input sections
  .debug_macro   0x0000000000000000      0xa75 Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x12e Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x221 Core/Src/system_stm32l4xx.o
+ .text          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .data          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .bss           0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .ARM.attributes
+                0x0000000000000000       0x20 Core/Startup/fw_anywhere_startup_inline.o
  .text          0x0000000000000000       0x14 Core/Startup/startup_stm32l432kcux.o
  .data          0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
  .bss           0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
@@ -2847,6 +2852,7 @@ LOAD Core/Src/stm32l4xx_it.o
 LOAD Core/Src/syscalls.o
 LOAD Core/Src/sysmem.o
 LOAD Core/Src/system_stm32l4xx.o
+LOAD Core/Startup/fw_anywhere_startup_inline.o
 LOAD Core/Startup/startup_stm32l432kcux.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
@@ -3475,22 +3481,22 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
  .debug_macro   0x000000000001f54f      0x1c6 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.o
  .debug_macro   0x000000000001f715      0x1c5 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.o
 
-.debug_line     0x0000000000000000     0xceea
+.debug_line     0x0000000000000000     0xcf12
  .debug_line    0x0000000000000000      0x394 Core/Src/image_info.o
  .debug_line    0x0000000000000394      0x7f3 Core/Src/main.o
  .debug_line    0x0000000000000b87      0x701 Core/Src/stm32l4xx_hal_msp.o
  .debug_line    0x0000000000001288      0x7ac Core/Src/stm32l4xx_it.o
  .debug_line    0x0000000000001a34      0x7b6 Core/Src/system_stm32l4xx.o
- .debug_line    0x00000000000021ea      0x133 Core/Startup/startup_stm32l432kcux.o
- .debug_line    0x000000000000231d      0xa22 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
- .debug_line    0x0000000000002d3f      0xc5c Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
- .debug_line    0x000000000000399b      0xab0 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.o
- .debug_line    0x000000000000444b      0x892 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.o
- .debug_line    0x0000000000004cdd      0xba8 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.o
- .debug_line    0x0000000000005885      0xf3b Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o
- .debug_line    0x00000000000067c0     0x1287 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o
- .debug_line    0x0000000000007a47     0x3a10 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.o
- .debug_line    0x000000000000b457     0x1a93 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.o
+ .debug_line    0x00000000000021ea      0x15b Core/Startup/startup_stm32l432kcux.o
+ .debug_line    0x0000000000002345      0xa22 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
+ .debug_line    0x0000000000002d67      0xc5c Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
+ .debug_line    0x00000000000039c3      0xab0 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.o
+ .debug_line    0x0000000000004473      0x892 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.o
+ .debug_line    0x0000000000004d05      0xba8 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.o
+ .debug_line    0x00000000000058ad      0xf3b Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o
+ .debug_line    0x00000000000067e8     0x1287 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o
+ .debug_line    0x0000000000007a6f     0x3a10 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.o
+ .debug_line    0x000000000000b47f     0x1a93 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.o
 
 .debug_str      0x0000000000000000    0xc243d
  .debug_str     0x0000000000000000     0x3c26 Core/Src/image_info.o

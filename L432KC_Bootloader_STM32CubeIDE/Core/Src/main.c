@@ -149,7 +149,7 @@ int main(void)
         }
       }
     }
-    pu32FwFlashReadPointer += 512;
+    pu32FwFlashReadPointer += (512/4);
   }
   // Run high frequency for a brief while, then jump
   for (u32LedCounter = 0; u32LedCounter < 0x120000; u32LedCounter++)
