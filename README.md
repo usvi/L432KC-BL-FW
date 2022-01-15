@@ -8,10 +8,38 @@ Quick statuses
 
 Bootloader: **Works. Automaticly jumps to first non-empty position in firmware area.**
 
-Firmware_anywhere: **Works with all addresses sufficiently aligned when booted by bootloader. Works also standalone.**
+Firmware_anywhere: **Works with all addresses sufficiently aligned (512/0x200 bytes) when booted by bootloader. Works also standalone.**
 
-VTOR and thus basically the whole image needs to be aligned to 512 bytes in Cortex-M4.
+(VTOR and thus basically the whole image needs to be aligned in Cortex-M4.)
 
-One can try for example these addresses, they should all work:  0x8005000, 0x8005200,
-0x8005400, 0x8006C00, 0x8009000, 0x800A200, 0x800E600, 0x8010C00, 0x801AA00, 0x801D400,
-0x8025A00, 0x803D000
+One can try for example these addresses, they should all work:
+
+0x8005000 
+
+0x8005200
+
+0x8005400
+
+0x8005600
+
+0x8005800
+
+0x8005A00
+
+0x8005C00
+
+0x8005E00
+
+0x8006000
+
+0x8006200
+
+0x8006400
+
+0x8006600
+
+0x8006800
+
+0x8006A00
+
+
