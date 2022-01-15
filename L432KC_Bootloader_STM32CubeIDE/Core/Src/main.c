@@ -34,10 +34,28 @@ extern uint32_t __flash_fwarea_end;
 
 static void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void vL432kc_DeInitAndJump(uint32_t u32JumpAddress);
+
+static void vL432kc_DeInit(void)
+{
+  // Deinitialization and jump parts from
+  // https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
+
+  __disable_irq();
+
+  HAL_GPIO_DeInit(LD3_GPIO_Port, LD3_Pin);
+  __HAL_RCC_GPIOC_CLK_DISABLE();
+  __HAL_RCC_GPIOA_CLK_DISABLE();
+  __HAL_RCC_GPIOB_CLK_DISABLE();
+  HAL_RCC_DeInit();
+  HAL_DeInit();
+
+  SysTick->CTRL = 0;
+  SysTick->LOAD = 0;
+  SysTick->VAL = 0;
+}
 
 
-static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
+static void vDeInitAndJumpToMainFirmware(void (*pvPlatformSpecificDeinit)(void), uint32_t u32FwAddress)
 {
   uint32_t u32FirmwareStackPointerAddress = 0;
   uint32_t u32FirmwareResetHandlerAddress = 0;
@@ -54,22 +72,9 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
   // Patch it with offset
   u32FirmwareResetHandlerAddress += u32FirmwareOffset;
 
-  // Deinitialization and jump parts from
-  // https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
 
-  __disable_irq();
-
-  HAL_GPIO_DeInit(LD3_GPIO_Port, LD3_Pin);
-  __HAL_RCC_GPIOC_CLK_DISABLE();
-  __HAL_RCC_GPIOA_CLK_DISABLE();
-  __HAL_RCC_GPIOB_CLK_DISABLE();
-  HAL_RCC_DeInit();
-  HAL_DeInit();
-
-  SysTick->CTRL = 0;
-  SysTick->LOAD = 0;
-  SysTick->VAL = 0;
-
+  // DEINIT HERE  vL432kc_DeInit();
+  pvPlatformSpecificDeinit();
   // Firmware does all the rest needed, system memory remapping, vector table and got operations, etc.
 
   // Calculate simple checksum of the registers to be passed
@@ -102,33 +107,18 @@ static void vL432kc_DeInitAndJump(uint32_t u32FwAddress)
 }
 
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-
-//extern char __KERNEL_BEGIN__;
-
-
-int main(void)
+// Parameter in is the initial address. If we find better address, we set it.
+static void vScanMainFirmwareFlashAddress(uint32_t* pu32JumpAddress)
 {
-  uint32_t u32LedCounter = 0;
+  uint32_t u32ReadNum = 0;
+  uint32_t* pu32FwFlashReadPointer = (*pu32JumpAddress);
+  uint32_t u32JumpAddress = *pu32JumpAddress;
   uint8_t au8EmptyFlashBuffer[512] = { 0 };
   uint8_t au8ReadFlashBuffer[512] = { 0 };
   uint32_t u32MaxBufReads = (FLASH_FWAREA_END_BOUNDARY - FLASH_FWAREA_BEGIN) / 512;
-  uint32_t u32ReadNum = 0;
-  uint32_t u32JumpAddress = FLASH_FWAREA_BEGIN; // Default jump address
-  uint32_t* pu32FwFlashReadPointer = (uint32_t*)FLASH_FWAREA_BEGIN;
   uint8_t u8Continue = 1;
 
   memset(au8EmptyFlashBuffer, 0xFF, sizeof(au8EmptyFlashBuffer));
-
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
-
-  // the LED on during our flash scavenging
-  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
   for (u32ReadNum = 0; (u32ReadNum < u32MaxBufReads) && u8Continue; u32ReadNum++)
   {
@@ -151,6 +141,26 @@ int main(void)
     }
     pu32FwFlashReadPointer += (512/4);
   }
+  if (u8Continue == 0)
+  {
+    *pu32JumpAddress = u32JumpAddress;
+  }
+}
+
+int main(void)
+{
+  uint32_t u32LedCounter = 0;
+  uint32_t u32JumpAddress = FLASH_FWAREA_BEGIN; // Default jump address
+
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
+
+  // the LED on during our flash scavenging
+  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+
+  vScanMainFirmwareFlashAddress(&u32JumpAddress);
+
   // Run high frequency for a brief while, then jump
   for (u32LedCounter = 0; u32LedCounter < 0x120000; u32LedCounter++)
   {
@@ -164,7 +174,8 @@ int main(void)
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
   // Deinit and jump
-  vL432kc_DeInitAndJump(u32JumpAddress); // << works if Firmware anywhere flashed here
+  //vL432kc_DeInitAndJump(u32JumpAddress); // << works if Firmware anywhere flashed here
+  vDeInitAndJumpToMainFirmware(&vL432kc_DeInit, u32JumpAddress);
 
   while (1)
   {
