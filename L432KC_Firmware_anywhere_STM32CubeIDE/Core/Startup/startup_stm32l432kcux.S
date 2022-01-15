@@ -70,7 +70,6 @@ Reset_Handler:
 
 
 #define FW_ANYWHERE_STARTUP_INCLUDED 1
-#define FW_ANYWHERE_USE_VTOR 1
 #include "fw_anywhere_startup_inline.S"
 
 

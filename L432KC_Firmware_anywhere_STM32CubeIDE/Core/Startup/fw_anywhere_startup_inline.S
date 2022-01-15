@@ -1,7 +1,7 @@
 /*
  * Assembly initialization routines for bootstrapping PIC firmware images.
  *
- * v. 1.0 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
+ * v. 1.1 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
  *
  * This file contains assembly initialization routines to bootstrap firmware
  * images compiled with position independent code (PIC) options. Bootstrapping
@@ -84,12 +84,10 @@
   ldr r2, =gu32FirmwareAbsOffsetChecksum
   str r7, [r2]
 
-#ifdef FW_ANYWHERE_USE_VTOR
   // Store vector table RAM being address dynamically so systemconfig can map it
   ldr r7, =__ram_vector_table_begin
   ldr r2, =gu32RamVectorTableBegin
   str r7, [r2]
-#endif /* #ifdef FW_ANYWHERE_USE_VTOR */
 
   // Firmware may be booting as standalone. In that case inspect the checksum
   // and if it does not match, we are most likely running from standalone.
@@ -244,11 +242,9 @@ FillZerobss:
   cmp r2, r6 // Compare with what we are going to zero
   beq FillZerobssSkip // If we should skip zeroing, jump away
 
-#ifdef FW_ANYWHERE_USE_VTOR
   ldr r6, =gu32RamVectorTableBegin // Vector table location in RAM
   cmp r2, r6 // Compare with what we are going to zero
   beq FillZerobssSkip // If we should skip zeroing, jump away
-#endif /* #ifdef FW_ANYWHERE_USE_VTOR */
 
   str  r3, [r2] // If not escaped yet, make the store
 

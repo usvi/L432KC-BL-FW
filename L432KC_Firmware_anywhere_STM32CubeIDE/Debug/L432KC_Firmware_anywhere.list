@@ -39,15 +39,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_macro  0001f8da  00000000  00000000  0002f920  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   0000cf12  00000000  00000000  0004f1fa  2**0
+ 18 .debug_line   0000cf0e  00000000  00000000  0004f1fa  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000c243d  00000000  00000000  0005c10c  2**0
+ 19 .debug_str    000c243d  00000000  00000000  0005c108  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000053  00000000  00000000  0011e549  2**0
+ 20 .comment      00000053  00000000  00000000  0011e545  2**0
                   CONTENTS, READONLY
- 21 .debug_ranges 00000b70  00000000  00000000  0011e5a0  2**3
+ 21 .debug_ranges 00000b70  00000000  00000000  0011e598  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_frame  00003230  00000000  00000000  0011f110  2**2
+ 22 .debug_frame  00003230  00000000  00000000  0011f108  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -980,7 +980,6 @@ Reset_Handler:
   str r7, [r2]
  800063c:	6017      	str	r7, [r2, #0]
 
-#ifdef FW_ANYWHERE_USE_VTOR
   // Store vector table RAM being address dynamically so systemconfig can map it
   ldr r7, =__ram_vector_table_begin
  800063e:	4f4e      	ldr	r7, [pc, #312]	; (8000778 <LoopForever+0x14>)
@@ -1117,7 +1116,6 @@ GlobalOffsetTableCopyPatchEnd:
 0800069c <VectorTableCopyPatchInit>:
 
 
-
   // Need to copy and patch vector table in assembly so nobody comes to mess around
 VectorTableCopyPatchInit:
   movs r0, #0 // Loop variable
@@ -1194,8 +1192,8 @@ VectorTableLoopIncrements:
  80006ce:	e7e7      	b.n	80006a0 <VectorTableCopyPatchLoopCond>
 
 080006d0 <VectorTableCopyPatchEnd>:
-VectorTableCopyPatchEnd:
 
+VectorTableCopyPatchEnd:
 
 
 /* Copy the data segment initializers from flash to SRAM */
@@ -1272,16 +1270,12 @@ FillZerobss:
   beq FillZerobssSkip // If we should skip zeroing, jump away
  8000704:	d003      	beq.n	800070e <FillZerobssSkip>
 
-#ifdef FW_ANYWHERE_USE_VTOR
   ldr r6, =gu32RamVectorTableBegin // Vector table location in RAM
  8000706:	4e1d      	ldr	r6, [pc, #116]	; (800077c <LoopForever+0x18>)
   cmp r2, r6 // Compare with what we are going to zero
  8000708:	42b2      	cmp	r2, r6
   beq FillZerobssSkip // If we should skip zeroing, jump away
  800070a:	d000      	beq.n	800070e <FillZerobssSkip>
-#endif /* #ifdef FW_ANYWHERE_USE_VTOR */
-
-
 
   str  r3, [r2] // If not escaped yet, make the store
  800070c:	6013      	str	r3, [r2, #0]
@@ -1306,7 +1300,6 @@ LoopFillZerobss:
  8000714:	f7ff ff48 	bl	80005a8 <SystemInit>
 
 08000718 <CallPreinitsInit>:
-
 
 
 // Make our own __libc_init_array
@@ -1409,7 +1402,7 @@ CallInitsLoop:
  800075e:	e7f6      	b.n	800074e <CallInitsLoopCond>
 
 08000760 <CallInitsEnd>:
-#define FW_ANYWHERE_USE_VTOR 1
+#define FW_ANYWHERE_STARTUP_INCLUDED 1
 #include "fw_anywhere_startup_inline.S"
 
 
