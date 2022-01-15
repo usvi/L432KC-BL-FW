@@ -1,3 +1,70 @@
+/*
+ * Assembly initialization routines for bootstrapping PIC firmware images.
+ *
+ * v. 1.0 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
+ *
+ * This file contains assembly initialization routines to bootstrap firmware
+ * images compiled with position independent code (PIC) options. Bootstrapping
+ * needs to be done here in assembly because the PIC options would mess up the
+ * C compilation. It is basically a chicken and egg problem.
+ *
+ * I'm proud to say these routines are portable between differnet core types
+ * and have been tested with Cortex-M0 and Cortex-M4 successfully.
+ *
+ * Two core concepts are needed to be handled very carefully here. They are
+ * the interrupt service routine (ISR) vector table and the global offset table
+ * (GOT). These tables need to be copied from flash to RAM for access. Now
+ * comes the twist. The firmware itself is compiled so that it expects to be
+ * running from first flash address, namely 0x8000000. Nothing special is done
+ * about it anywhere else. BUT actually the firmware may be running from
+ * somewhere else. For example from 0x8005200.
+ *
+ * Now, if we did not do some special bootstrapping here, the offsetted
+ * firmware would try to still look up things from 0x8000000. How to prevent
+ * this? We copy the ISR and GOT tables to RAM. Then if we see in those tables
+ * addresses that are trying to access flash, we add the offset (0x5200).
+ *
+ * The routines first store register values of firmware position data. These
+ * values are set up by bootloader. Values are verified with a checksum. If
+ * the checksum matches, we can be quite sure that the we are booting with via
+ * the bootloader.
+ *
+ * Then the routine copies the GOT to RAM and while copying it patches
+ * relevant addresses with the offset value we calculated. Basically if it
+ * sees addresses of the flash range (0x8000000 -> flash end boundary), it
+ * adds the offset.
+ *
+ * Basically the same thing is performed next to ISR vector table; offset
+ * patching.
+ *
+ * Next we run routines of copying other initialization data from flash to RAM,
+ * but also using the offset. We also zero memory ranges which are expected to
+ * be zero, BUT we take special care not to zero the global variable locations
+ * we used in the very beginning to store the data we got via bootloader in
+ * registers.
+ *
+ * Then we call the C initialization function SystemInit() which normally sets
+ * up clocks and does some other necessary initializations. SystemInit() also,
+ * on platforms having the vector table offset (VTOR) register, sets to VTOR
+ * register to point it to right location. This happens at least on Cortex-M4.
+ * On platforms not having VTOR (for example Cortex-M0) other means can be
+ * used to emulate the functionality.
+ *
+ * Next there is the curious case of __libc_init_array . This is a C library
+ * initialization assembly function. The original version would call functions
+ * from an array in flash. However as the firmware image running now might be
+ * relacated with an offset, we need to add an offset also.
+ * NOTE: I have not extensively verified that this part would function in ALL
+ * cases. It could be that the functions being called might have dependencies
+ * to locations needing patching. So keep this in mind if you plan to use this
+ * code.
+ *
+ * After __libc_init_array we are basically done with bootstrap and the
+ * "calling" platform-specific startup file usually proceeds to call the actual
+ * main() of the compiled binary.
+ */
+
+
 // Only allow inlined build:
 #ifdef FW_ANYWHERE_STARTUP_INCLUDED
 
@@ -94,7 +161,6 @@ GlobalOffsetTableCopyPatchEnd:
   mov r9, r0 // Stupid trick to put global offset table location to r9, for Cortex-M0
 
 
-
   // Need to copy and patch vector table in assembly so nobody comes to mess around
 VectorTableCopyPatchInit:
   movs r0, #0 // Loop variable
@@ -135,7 +201,6 @@ VectorTableLoopIncrements:
   b VectorTableCopyPatchLoopCond // Jump to loop condition checking
 
 VectorTableCopyPatchEnd:
-
 
 
 /* Copy the data segment initializers from flash to SRAM */
@@ -185,8 +250,6 @@ FillZerobss:
   beq FillZerobssSkip // If we should skip zeroing, jump away
 #endif /* #ifdef FW_ANYWHERE_USE_VTOR */
 
-
-
   str  r3, [r2] // If not escaped yet, make the store
 
 FillZerobssSkip:
@@ -199,7 +262,6 @@ LoopFillZerobss:
 
 /* Call the clock system initialization function.*/
     bl  SystemInit
-
 
 
 // Make our own __libc_init_array

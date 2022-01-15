@@ -37,9 +37,10 @@ extern uint32_t __flash_fwarea_end;
 static void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 
+
 static void vL432kc_DeInit(void)
 {
-  // Deinitialization and jump parts from
+  // Deinitialization parts from
   // https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
 
   __disable_irq();
@@ -72,6 +73,7 @@ int main(void)
   // the LED on during our flash scavenging
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
+  // Go check if we get better idea about start address than the default
   vScanMainFirmwareFlashAddress(&u32JumpAddress, FLASH_FWAREA_BEGIN, FLASH_FWAREA_END_BOUNDARY);
 
   // Run high frequency for a brief while, then jump
@@ -87,8 +89,7 @@ int main(void)
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
   // Deinit and jump
-  //vL432kc_DeInitAndJump(u32JumpAddress); // << works if Firmware anywhere flashed here
-  vDeInitAndJumpToMainFirmware(&vL432kc_DeInit,FLASH_BOOTLOADER_BEGIN, u32JumpAddress);
+  vDeInitAndJumpToMainFirmware(&vL432kc_DeInit, FLASH_BOOTLOADER_BEGIN, u32JumpAddress);
 
   while (1)
   {

@@ -1,7 +1,7 @@
 /*
  * Functions for scanning the flash for firmware images and running the images.
  *
- * v. 1.0
+ * v. 1.0 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
  *
  * Features and constraints:
  * - Portable between different cores, tested Cortex-M0 and Cortex-M4
