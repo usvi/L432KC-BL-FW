@@ -5,49 +5,49 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .isr_vector   0000018c  20000000  08000000  00010000  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  1 .got          00000020  2000018c  0800018c  0001018c  2**2
+  1 .got          00000020  20000200  0800018c  00010200  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .text         00002080  080001ac  080001ac  000101ac  2**2
+  2 .text         00002080  080001ac  080001ac  000201ac  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  3 .rodata       00000040  0800222c  0800222c  0001222c  2**2
+  3 .rodata       00000040  0800222c  0800222c  0002222c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  4 .ARM.extab    00000000  0800226c  0800226c  000201c4  2**0
+  4 .ARM.extab    00000000  0800226c  0800226c  00030238  2**0
                   CONTENTS
-  5 .ARM          00000000  0800226c  0800226c  000201c4  2**0
+  5 .ARM          00000000  0800226c  0800226c  00030238  2**0
                   CONTENTS
-  6 .preinit_array 00000000  0800226c  0800226c  000201c4  2**0
+  6 .preinit_array 00000000  0800226c  0800226c  00030238  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .init_array   00000004  0800226c  0800226c  0001226c  2**2
+  7 .init_array   00000004  0800226c  0800226c  0002226c  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  8 .fini_array   00000004  08002270  08002270  00012270  2**2
+  8 .fini_array   00000004  08002270  08002270  00022270  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .data         0000000c  200001ac  08002274  000201ac  2**2
+  9 .data         0000000c  20000220  08002274  00030220  2**2
                   CONTENTS, ALLOC, LOAD, DATA
- 10 .got.plt      0000000c  200001b8  08002280  000201b8  2**2
+ 10 .got.plt      0000000c  2000022c  08002280  0003022c  2**2
                   CONTENTS, ALLOC, LOAD, DATA
- 11 .bss          0000007c  200001c4  0800228c  000201c4  2**2
+ 11 .bss          0000007c  20000238  0800228c  00030238  2**2
                   ALLOC
- 12 ._user_heap_stack 00000600  20000240  0800228c  00020240  2**0
+ 12 ._user_heap_stack 00000604  200002b4  0800228c  000302b4  2**0
                   ALLOC
- 13 .ARM.attributes 00000030  00000000  00000000  000201c4  2**0
+ 13 .ARM.attributes 00000030  00000000  00000000  00030238  2**0
                   CONTENTS, READONLY
- 14 .debug_info   0000cec4  00000000  00000000  000201f4  2**0
+ 14 .debug_info   0000cec4  00000000  00000000  00030268  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_abbrev 00001c03  00000000  00000000  0002d0b8  2**0
+ 15 .debug_abbrev 00001c03  00000000  00000000  0003d12c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_aranges 00000c60  00000000  00000000  0002ecc0  2**3
+ 16 .debug_aranges 00000c60  00000000  00000000  0003ed30  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  0001f8da  00000000  00000000  0002f920  2**0
+ 17 .debug_macro  0001f8da  00000000  00000000  0003f990  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   0000cf0e  00000000  00000000  0004f1fa  2**0
+ 18 .debug_line   0000cf0e  00000000  00000000  0005f26a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000c243d  00000000  00000000  0005c108  2**0
+ 19 .debug_str    000c243d  00000000  00000000  0006c178  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000053  00000000  00000000  0011e545  2**0
+ 20 .comment      00000053  00000000  00000000  0012e5b5  2**0
                   CONTENTS, READONLY
- 21 .debug_ranges 00000b70  00000000  00000000  0011e598  2**3
+ 21 .debug_ranges 00000b70  00000000  00000000  0012e608  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_frame  00003230  00000000  00000000  0011f108  2**2
+ 22 .debug_frame  00003230  00000000  00000000  0012f178  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -64,7 +64,7 @@ Disassembly of section .text:
  80001be:	2301      	movs	r3, #1
  80001c0:	7023      	strb	r3, [r4, #0]
  80001c2:	bd10      	pop	{r4, pc}
- 80001c4:	200001c4 	.word	0x200001c4
+ 80001c4:	20000238 	.word	0x20000238
  80001c8:	00000000 	.word	0x00000000
  80001cc:	08002214 	.word	0x08002214
 
@@ -77,7 +77,7 @@ Disassembly of section .text:
  80001da:	f3af 8000 	nop.w
  80001de:	bd08      	pop	{r3, pc}
  80001e0:	00000000 	.word	0x00000000
- 80001e4:	200001c8 	.word	0x200001c8
+ 80001e4:	2000023c 	.word	0x2000023c
  80001e8:	08002214 	.word	0x08002214
 
 080001ec <main>:
@@ -1419,15 +1419,15 @@ LoopForever:
   ldr   sp, =_estack    /* Set stack pointer */
  8000768:	20010000 	.word	0x20010000
   ldr r2, =gu32FirmwareAbsPosition
- 800076c:	200001e0 	.word	0x200001e0
+ 800076c:	20000254 	.word	0x20000254
   ldr r2, =gu32FirmwareOffset
- 8000770:	200001e8 	.word	0x200001e8
+ 8000770:	2000025c 	.word	0x2000025c
   ldr r2, =gu32FirmwareAbsOffsetChecksum
- 8000774:	200001e4 	.word	0x200001e4
+ 8000774:	20000258 	.word	0x20000258
   ldr r7, =__ram_vector_table_begin
  8000778:	20000000 	.word	0x20000000
   ldr r2, =gu32RamVectorTableBegin
- 800077c:	200001ec 	.word	0x200001ec
+ 800077c:	20000260 	.word	0x20000260
   ldr r1, =__flash_begin; // Load variable address
  8000780:	08000000 	.word	0x08000000
   ldr r2, =__flash_global_offset_table_begin // Need global offset table table beginning for pointer
@@ -1437,21 +1437,21 @@ LoopForever:
   ldr r4, =__flash_end // Need also flash end boundary for checking
  800078c:	08040000 	.word	0x08040000
   ldr r3, =__ram_global_offset_table_begin // Get global offset table begin in ram for ram data pointer
- 8000790:	2000018c 	.word	0x2000018c
+ 8000790:	20000200 	.word	0x20000200
   ldr r2, =__flash_vector_table_begin // Need vector table beginning for pointer
  8000794:	08000000 	.word	0x08000000
   ldr r3, =__flash_vector_table_end // And need end for checking loop
  8000798:	0800018c 	.word	0x0800018c
   ldr r0, =_sdata
- 800079c:	200001ac 	.word	0x200001ac
+ 800079c:	20000220 	.word	0x20000220
   ldr r1, =_edata
- 80007a0:	200001b8 	.word	0x200001b8
+ 80007a0:	2000022c 	.word	0x2000022c
   ldr r2, =_sidata
  80007a4:	08002274 	.word	0x08002274
   ldr r2, =_sbss
- 80007a8:	200001c4 	.word	0x200001c4
+ 80007a8:	20000238 	.word	0x20000238
   ldr r4, =_ebss
- 80007ac:	20000240 	.word	0x20000240
+ 80007ac:	200002b4 	.word	0x200002b4
   ldr r0, =__preinit_array_start
  80007b0:	0800226c 	.word	0x0800226c
   ldr r1, =__preinit_array_end

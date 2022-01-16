@@ -33,48 +33,56 @@ _estack = ORIGIN(RAM) + LENGTH(RAM);	/* end of "RAM" Ram type memory */
 _Min_Heap_Size = 0x200 ;	/* required amount of heap  */
 _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 
+FLASH_FULL_LEN = 256K ;
+RAM_FULL_LEN = 64K ;
+RAM_ISR_LEN = 512 ;
+
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 64K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 256K
+  ISR_RAM  (xrw)  : ORIGIN = 0x20000000,  LENGTH = RAM_ISR_LEN
+  RAM      (xrw)  : ORIGIN = ORIGIN(ISR_RAM) + LENGTH(ISR_RAM), LENGTH = RAM_FULL_LEN - LENGTH(ISR_RAM)  
+  FLASH     (rx)  : ORIGIN = 0x8000000,  LENGTH = FLASH_FULL_LEN
 }
 
-__ram_begin = ORIGIN(RAM) ;
-__ram_end = ORIGIN(RAM) + LENGTH(RAM) ;
 __flash_begin = ORIGIN(FLASH) ;
 __flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
 
 /* Sections */
 SECTIONS
 {
-  /* Interrupt vector table is at RAM, must be loaded by ourselves from flash. */
+  /* Interrupt vector table is forced to ISR_RAM, the first 512 bytes of RAM,   */
+  /* must be loaded by ourselves from flash. In general ISR vector need to be   */
+  /* located 512 byte aligned due to Vector Table Offset Register (VTOR)        */
+  /* requirements if VTOR exist on the platform (it exists on Cortex-M4, but    */
+  /* not in Cortex-M0 for example). In a system where we know we are relocating */
+  /* the ISR table to RAM in any case, we dont need to care about where it is   */
+  /* located in flash that much basically. This allows also some interesting    */
+  /* tweaks later. Btw, reference manual says about ISR vector verbatim:        */
+  /* The minimum alignment is 128 words                                         */
+
   .isr_vector :
   {
-    /* Isr vectors need to be 512 byte aligned due to VTOR and/or other */
-    /* platform requirements. (Reference manual says: The minimum alignment is 128 words)  */
-
-    . = ALIGN(512);
-    __ram_vector_table_begin = . ;
-    KEEP(*(.isr_vector)) /* Startup code */
-    __ram_vector_table_end = . ;
     . = ALIGN(4);
-  } >RAM AT> FLASH
-  /*  Check how LOADADDR behaves after we but stuff in the beginning */
+    KEEP(*(.isr_vector)) /* Startup code */
+    . = ALIGN(4);
+  } >ISR_RAM AT> FLASH
   __flash_vector_table_begin = LOADADDR(.isr_vector) ;
-  __flash_vector_table_end = __flash_vector_table_begin + __ram_vector_table_end - __ram_vector_table_begin ;
-  
+  __flash_vector_table_end = __flash_vector_table_begin + SIZEOF(.isr_vector) ;
+  __ram_vector_table_begin = ADDR(.isr_vector) ;
+  __ram_vector_table_end = __ram_vector_table_begin + SIZEOF(.isr_vector) ;
 
-  /* Global Offset Table is relocated to RAM. */
+
+  /* Global Offset Table is relocated to regular RAM. No alignment constraints. */
   .got :
   {
     . = ALIGN(4);
-    __ram_global_offset_table_begin = . ;
     *(.got)
-    __ram_global_offset_table_end = . ;
   } >RAM AT> FLASH
   __flash_global_offset_table_begin = LOADADDR(.got) ;
-  __flash_global_offset_table_end = __flash_global_offset_table_begin + __ram_global_offset_table_end - __ram_global_offset_table_begin ;
+  __flash_global_offset_table_end = __flash_global_offset_table_begin + SIZEOF(.got) ;
+  __ram_global_offset_table_begin = ADDR(.got) ;
+  __ram_global_offset_table_end = __ram_global_offset_table_begin + SIZEOF(.got) ;
 
 
   /* The program code and other data into "FLASH" Rom type memory */

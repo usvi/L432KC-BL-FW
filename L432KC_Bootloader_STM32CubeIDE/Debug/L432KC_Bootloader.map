@@ -557,6 +557,11 @@ Discarded input sections
  .debug_macro   0x0000000000000000      0x122 Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x357 Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x221 Core/Src/system_stm32l4xx.o
+ .text          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .data          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .bss           0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
+ .ARM.attributes
+                0x0000000000000000       0x20 Core/Startup/fw_anywhere_startup_inline.o
  .text          0x0000000000000000       0x14 Core/Startup/startup_stm32l432kcux.o
  .data          0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
  .bss           0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
@@ -2524,6 +2529,7 @@ LOAD Core/Src/stm32l4xx_it.o
 LOAD Core/Src/syscalls.o
 LOAD Core/Src/sysmem.o
 LOAD Core/Src/system_stm32l4xx.o
+LOAD Core/Startup/fw_anywhere_startup_inline.o
 LOAD Core/Startup/startup_stm32l432kcux.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
@@ -3110,20 +3116,20 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
  .debug_macro   0x000000000001f0b1      0x1f3 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o
  .debug_macro   0x000000000001f2a4      0x1e7 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o
 
-.debug_line     0x0000000000000000     0x7aa9
+.debug_line     0x0000000000000000     0x7aaa
  .debug_line    0x0000000000000000      0x5ef Core/Src/flash_scan_and_jump.o
- .debug_line    0x00000000000005ef      0x923 Core/Src/main.o
- .debug_line    0x0000000000000f12      0x695 Core/Src/stm32l4xx_hal_msp.o
- .debug_line    0x00000000000015a7      0x763 Core/Src/stm32l4xx_it.o
- .debug_line    0x0000000000001d0a      0x745 Core/Src/system_stm32l4xx.o
- .debug_line    0x000000000000244f       0x87 Core/Startup/startup_stm32l432kcux.o
- .debug_line    0x00000000000024d6      0x9f1 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
- .debug_line    0x0000000000002ec7      0xc2b Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
- .debug_line    0x0000000000003af2      0xa7f Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.o
- .debug_line    0x0000000000004571      0x861 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.o
- .debug_line    0x0000000000004dd2      0xb77 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.o
- .debug_line    0x0000000000005949      0xf0a Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o
- .debug_line    0x0000000000006853     0x1256 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o
+ .debug_line    0x00000000000005ef      0x924 Core/Src/main.o
+ .debug_line    0x0000000000000f13      0x695 Core/Src/stm32l4xx_hal_msp.o
+ .debug_line    0x00000000000015a8      0x763 Core/Src/stm32l4xx_it.o
+ .debug_line    0x0000000000001d0b      0x745 Core/Src/system_stm32l4xx.o
+ .debug_line    0x0000000000002450       0x87 Core/Startup/startup_stm32l432kcux.o
+ .debug_line    0x00000000000024d7      0x9f1 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
+ .debug_line    0x0000000000002ec8      0xc2b Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
+ .debug_line    0x0000000000003af3      0xa7f Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.o
+ .debug_line    0x0000000000004572      0x861 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.o
+ .debug_line    0x0000000000004dd3      0xb77 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.o
+ .debug_line    0x000000000000594a      0xf0a Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o
+ .debug_line    0x0000000000006854     0x1256 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o
 
 .debug_str      0x0000000000000000    0xbb12e
  .debug_str     0x0000000000000000     0x71ce Core/Src/flash_scan_and_jump.o

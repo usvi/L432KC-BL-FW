@@ -37,11 +37,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  0001f48b  00000000  00000000  0002ad20  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00007aa9  00000000  00000000  0004a1ab  2**0
+ 17 .debug_line   00007aaa  00000000  00000000  0004a1ab  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000bb12e  00000000  00000000  00051c54  2**0
+ 18 .debug_str    000bb12e  00000000  00000000  00051c55  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  0010cd82  2**0
+ 19 .comment      00000053  00000000  00000000  0010cd83  2**0
                   CONTENTS, READONLY
  20 .debug_frame  00001998  00000000  00000000  0010cdd8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -354,9 +354,9 @@ void vDeInitAndJumpToMainFirmware(tDeinitFuncPointer vPlatformSpecificDeinit,
 	...
 
 0800039c <vL432kc_DeInit>:
-
 static void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+
 
 static void vL432kc_DeInit(void)
 {
@@ -371,7 +371,7 @@ __STATIC_FORCEINLINE void __disable_irq(void)
  80003a0:	b672      	cpsid	i
 }
  80003a2:	bf00      	nop
-  // Deinitialization and jump parts from
+  // Deinitialization parts from
   // https://github.com/viktorvano/STM32-Bootloader/blob/master/STM32F103C8T6_Bootloader/Core/Inc/bootloader.h
 
   __disable_irq();
@@ -454,6 +454,7 @@ int main(void)
  800041a:	4818      	ldr	r0, [pc, #96]	; (800047c <main+0x80>)
  800041c:	f000 fd6a 	bl	8000ef4 <HAL_GPIO_WritePin>
 
+  // Go check if we get better idea about start address than the default
   vScanMainFirmwareFlashAddress(&u32JumpAddress, FLASH_FWAREA_BEGIN, FLASH_FWAREA_END_BOUNDARY);
  8000420:	4915      	ldr	r1, [pc, #84]	; (8000478 <main+0x7c>)
  8000422:	4a17      	ldr	r2, [pc, #92]	; (8000480 <main+0x84>)
@@ -501,8 +502,7 @@ int main(void)
  8000464:	f000 fd46 	bl	8000ef4 <HAL_GPIO_WritePin>
 
   // Deinit and jump
-  //vL432kc_DeInitAndJump(u32JumpAddress); // << works if Firmware anywhere flashed here
-  vDeInitAndJumpToMainFirmware(&vL432kc_DeInit,FLASH_BOOTLOADER_BEGIN, u32JumpAddress);
+  vDeInitAndJumpToMainFirmware(&vL432kc_DeInit, FLASH_BOOTLOADER_BEGIN, u32JumpAddress);
  8000468:	4907      	ldr	r1, [pc, #28]	; (8000488 <main+0x8c>)
  800046a:	683b      	ldr	r3, [r7, #0]
  800046c:	461a      	mov	r2, r3

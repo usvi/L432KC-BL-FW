@@ -2836,7 +2836,8 @@ Discarded input sections
 Memory Configuration
 
 Name             Origin             Length             Attributes
-RAM              0x0000000020000000 0x0000000000010000 xrw
+ISR_RAM          0x0000000020000000 0x0000000000000200 xrw
+RAM              0x0000000020000200 0x000000000000fe00 xrw
 FLASH            0x0000000008000000 0x0000000000040000 xr
 *default*        0x0000000000000000 0xffffffffffffffff
 
@@ -2894,30 +2895,31 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
                 0x0000000020010000                _estack = (ORIGIN (RAM) + LENGTH (RAM))
                 0x0000000000000200                _Min_Heap_Size = 0x200
                 0x0000000000000400                _Min_Stack_Size = 0x400
-                0x0000000020000000                __ram_begin = ORIGIN (RAM)
-                0x0000000020010000                __ram_end = (ORIGIN (RAM) + LENGTH (RAM))
+                0x0000000000040000                FLASH_FULL_LEN = 0x40000
+                0x0000000000010000                RAM_FULL_LEN = 0x10000
+                0x0000000000000200                RAM_ISR_LEN = 0x200
                 0x0000000008000000                __flash_begin = ORIGIN (FLASH)
                 0x0000000008040000                __flash_end = (ORIGIN (FLASH) + LENGTH (FLASH))
 
 .isr_vector     0x0000000020000000      0x18c load address 0x0000000008000000
-                0x0000000020000000                . = ALIGN (0x200)
-                0x0000000020000000                __ram_vector_table_begin = .
+                0x0000000020000000                . = ALIGN (0x4)
  *(.isr_vector)
  .isr_vector    0x0000000020000000      0x18c Core/Startup/startup_stm32l432kcux.o
                 0x0000000020000000                g_pfnVectors
-                0x000000002000018c                __ram_vector_table_end = .
                 0x000000002000018c                . = ALIGN (0x4)
                 0x0000000008000000                __flash_vector_table_begin = LOADADDR (.isr_vector)
-                0x000000000800018c                __flash_vector_table_end = ((__flash_vector_table_begin + __ram_vector_table_end) - __ram_vector_table_begin)
+                0x000000000800018c                __flash_vector_table_end = (__flash_vector_table_begin + SIZEOF (.isr_vector))
+                0x0000000020000000                __ram_vector_table_begin = ADDR (.isr_vector)
+                0x000000002000018c                __ram_vector_table_end = (__ram_vector_table_begin + SIZEOF (.isr_vector))
 
-.got            0x000000002000018c       0x20 load address 0x000000000800018c
-                0x000000002000018c                . = ALIGN (0x4)
-                0x000000002000018c                __ram_global_offset_table_begin = .
+.got            0x0000000020000200       0x20 load address 0x000000000800018c
+                0x0000000020000200                . = ALIGN (0x4)
  *(.got)
- .got           0x000000002000018c       0x20 c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
-                0x00000000200001ac                __ram_global_offset_table_end = .
+ .got           0x0000000020000200       0x20 c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
                 0x000000000800018c                __flash_global_offset_table_begin = LOADADDR (.got)
-                0x00000000080001ac                __flash_global_offset_table_end = ((__flash_global_offset_table_begin + __ram_global_offset_table_end) - __ram_global_offset_table_begin)
+                0x00000000080001ac                __flash_global_offset_table_end = (__flash_global_offset_table_begin + SIZEOF (.got))
+                0x0000000020000200                __ram_global_offset_table_begin = ADDR (.got)
+                0x0000000020000220                __ram_global_offset_table_end = (__ram_global_offset_table_begin + SIZEOF (.got))
 
 .text           0x00000000080001ac     0x2080
                 0x00000000080001ac                . = ALIGN (0x4)
@@ -3249,64 +3251,65 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
                 0x0000000008002274                . = ALIGN (0x4)
                 0x0000000008002274                _sidata = LOADADDR (.data)
 
-.data           0x00000000200001ac        0xc load address 0x0000000008002274
-                0x00000000200001ac                . = ALIGN (0x4)
-                0x00000000200001ac                _sdata = .
+.data           0x0000000020000220        0xc load address 0x0000000008002274
+                0x0000000020000220                . = ALIGN (0x4)
+                0x0000000020000220                _sdata = .
  *(.data)
  *(.data*)
  .data.SystemCoreClock
-                0x00000000200001ac        0x4 Core/Src/system_stm32l4xx.o
-                0x00000000200001ac                SystemCoreClock
+                0x0000000020000220        0x4 Core/Src/system_stm32l4xx.o
+                0x0000000020000220                SystemCoreClock
  .data.uwTickPrio
-                0x00000000200001b0        0x4 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
-                0x00000000200001b0                uwTickPrio
+                0x0000000020000224        0x4 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
+                0x0000000020000224                uwTickPrio
  .data.uwTickFreq
-                0x00000000200001b4        0x1 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
-                0x00000000200001b4                uwTickFreq
+                0x0000000020000228        0x1 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
+                0x0000000020000228                uwTickFreq
  *(.RamFunc)
  *(.RamFunc*)
-                0x00000000200001b8                . = ALIGN (0x4)
- *fill*         0x00000000200001b5        0x3 
-                0x00000000200001b8                _edata = .
+                0x000000002000022c                . = ALIGN (0x4)
+ *fill*         0x0000000020000229        0x3 
+                0x000000002000022c                _edata = .
 
-.igot.plt       0x00000000200001b8        0x0 load address 0x0000000008002280
- .igot.plt      0x00000000200001b8        0x0 c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+.igot.plt       0x000000002000022c        0x0 load address 0x0000000008002280
+ .igot.plt      0x000000002000022c        0x0 c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
 
-.got.plt        0x00000000200001b8        0xc load address 0x0000000008002280
- .got.plt       0x00000000200001b8        0xc c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
-                0x00000000200001b8                _GLOBAL_OFFSET_TABLE_
-                0x00000000200001c4                . = ALIGN (0x4)
+.got.plt        0x000000002000022c        0xc load address 0x0000000008002280
+ .got.plt       0x000000002000022c        0xc c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+                0x000000002000022c                _GLOBAL_OFFSET_TABLE_
+                0x0000000020000238                . = ALIGN (0x4)
 
-.bss            0x00000000200001c4       0x7c load address 0x000000000800228c
-                0x00000000200001c4                _sbss = .
-                0x00000000200001c4                __bss_start__ = _sbss
+.bss            0x0000000020000238       0x7c load address 0x000000000800228c
+                0x0000000020000238                _sbss = .
+                0x0000000020000238                __bss_start__ = _sbss
  *(.bss)
- .bss           0x00000000200001c4       0x1c c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+ .bss           0x0000000020000238       0x1c c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7e-m+fp/hard/crtbegin.o
  *(.bss*)
  *(COMMON)
- COMMON         0x00000000200001e0       0x10 Core/Src/image_info.o
-                0x00000000200001e0                gu32FirmwareAbsPosition
-                0x00000000200001e4                gu32FirmwareAbsOffsetChecksum
-                0x00000000200001e8                gu32FirmwareOffset
-                0x00000000200001ec                gu32RamVectorTableBegin
- COMMON         0x00000000200001f0       0x4c Core/Src/main.o
-                0x00000000200001f0                gtHtim7
- COMMON         0x000000002000023c        0x4 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
-                0x000000002000023c                uwTick
-                0x0000000020000240                . = ALIGN (0x4)
-                0x0000000020000240                _ebss = .
-                0x0000000020000240                __bss_end__ = _ebss
+ COMMON         0x0000000020000254       0x10 Core/Src/image_info.o
+                0x0000000020000254                gu32FirmwareAbsPosition
+                0x0000000020000258                gu32FirmwareAbsOffsetChecksum
+                0x000000002000025c                gu32FirmwareOffset
+                0x0000000020000260                gu32RamVectorTableBegin
+ COMMON         0x0000000020000264       0x4c Core/Src/main.o
+                0x0000000020000264                gtHtim7
+ COMMON         0x00000000200002b0        0x4 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
+                0x00000000200002b0                uwTick
+                0x00000000200002b4                . = ALIGN (0x4)
+                0x00000000200002b4                _ebss = .
+                0x00000000200002b4                __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x0000000020000240      0x600 load address 0x000000000800228c
-                0x0000000020000240                . = ALIGN (0x8)
+                0x00000000200002b4      0x604 load address 0x000000000800228c
+                0x00000000200002b8                . = ALIGN (0x8)
+ *fill*         0x00000000200002b4        0x4 
                 [!provide]                        PROVIDE (end = .)
-                0x0000000020000240                PROVIDE (_end = .)
-                0x0000000020000440                . = (. + _Min_Heap_Size)
- *fill*         0x0000000020000240      0x200 
-                0x0000000020000840                . = (. + _Min_Stack_Size)
- *fill*         0x0000000020000440      0x400 
-                0x0000000020000840                . = ALIGN (0x8)
+                0x00000000200002b8                PROVIDE (_end = .)
+                0x00000000200004b8                . = (. + _Min_Heap_Size)
+ *fill*         0x00000000200002b8      0x200 
+                0x00000000200008b8                . = (. + _Min_Stack_Size)
+ *fill*         0x00000000200004b8      0x400 
+                0x00000000200008b8                . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
