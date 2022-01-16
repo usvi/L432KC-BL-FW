@@ -1,7 +1,7 @@
 /*
  * Assembly initialization routines for bootstrapping PIC firmware images.
  *
- * v. 1.1 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
+ * v. 1.1 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd / http://stacklake.fi/index.en.html
  *
  * This file contains assembly initialization routines to bootstrap firmware
  * images compiled with position independent code (PIC) options. Bootstrapping

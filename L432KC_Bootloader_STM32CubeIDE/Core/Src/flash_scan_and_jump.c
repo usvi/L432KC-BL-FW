@@ -1,18 +1,17 @@
 /*
  * Functions for scanning the flash for firmware images and running the images.
  *
- * v. 1.0 / 2022-01-15 / Janne Paalijarvi, StackLake Ltd
+ * v. 1.1 / 2022-01-16 / Janne Paalijarvi, StackLake Ltd / http://stacklake.fi/index.en.html
  *
  * Features and constraints:
  * - Portable between different cores, tested Cortex-M0 and Cortex-M4
  * - Buffered scan: Uses 512 byte read buffer to speed things up
- * - Firmware start and vector table need to be aligned to 512 bytes
+ * - Jumps to position in flash where first non-zero u32 data is found
  */
 #include "flash_scan_and_jump.h"
 
 #include <string.h>
 
-// This needs to be exactly 512 for things to work
 #define FLASH_BUFFER_SIZE 512
 
 
@@ -45,11 +44,12 @@ void vScanMainFirmwareFlashAddress(uint32_t* pu32JumpAddress,
     {
       // Found something
       u32JumpAddress = (uint32_t)pu32FwFlashReadPointer;
-      // Need to go trough in 4 byte increments and see what is here
-      // Use the same things
+
+      // Need to go trough the read buffer in 4 byte increments and
+      // see what is here. Re-using u32ReadNum now.
       for (u32ReadNum = 0; (u32ReadNum < (FLASH_BUFFER_SIZE / 4)) && u8Continue; u32ReadNum++)
       {
-        if (memcmp(au8EmptyFlashBuffer, pu32FwFlashReadPointer + (u32ReadNum * 4), 4) != 0)
+        if (memcmp(au8EmptyFlashBuffer, au8ReadFlashBuffer + (u32ReadNum * 4), 4) != 0)
         {
           u32JumpAddress += (u32ReadNum * 4);
           u8Continue = 0;

@@ -168,17 +168,18 @@ void vScanMainFirmwareFlashAddress(uint32_t* pu32JumpAddress,
       u32JumpAddress = (uint32_t)pu32FwFlashReadPointer;
  8000288:	f8d7 3420 	ldr.w	r3, [r7, #1056]	; 0x420
  800028c:	f8c7 341c 	str.w	r3, [r7, #1052]	; 0x41c
-      // Need to go trough in 4 byte increments and see what is here
-      // Use the same things
+
+      // Need to go trough the read buffer in 4 byte increments and
+      // see what is here. Re-using u32ReadNum now.
       for (u32ReadNum = 0; (u32ReadNum < (FLASH_BUFFER_SIZE / 4)) && u8Continue; u32ReadNum++)
  8000290:	2300      	movs	r3, #0
  8000292:	f8c7 3424 	str.w	r3, [r7, #1060]	; 0x424
  8000296:	e01e      	b.n	80002d6 <vScanMainFirmwareFlashAddress+0x10a>
       {
-        if (memcmp(au8EmptyFlashBuffer, pu32FwFlashReadPointer + (u32ReadNum * 4), 4) != 0)
+        if (memcmp(au8EmptyFlashBuffer, au8ReadFlashBuffer + (u32ReadNum * 4), 4) != 0)
  8000298:	f8d7 3424 	ldr.w	r3, [r7, #1060]	; 0x424
- 800029c:	011b      	lsls	r3, r3, #4
- 800029e:	f8d7 2420 	ldr.w	r2, [r7, #1056]	; 0x420
+ 800029c:	009b      	lsls	r3, r3, #2
+ 800029e:	f107 0214 	add.w	r2, r7, #20
  80002a2:	18d1      	adds	r1, r2, r3
  80002a4:	f507 7305 	add.w	r3, r7, #532	; 0x214
  80002a8:	2204      	movs	r2, #4
