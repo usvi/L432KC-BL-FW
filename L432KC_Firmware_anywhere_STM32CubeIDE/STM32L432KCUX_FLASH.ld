@@ -78,6 +78,7 @@ SECTIONS
   {
     . = ALIGN(4);
     *(.got)
+    . = ALIGN(4);
   } >RAM AT> FLASH
   __flash_global_offset_table_begin = LOADADDR(.got) ;
   __flash_global_offset_table_end = __flash_global_offset_table_begin + SIZEOF(.got) ;
