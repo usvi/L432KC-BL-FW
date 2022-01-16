@@ -51,15 +51,15 @@ __flash_end = ORIGIN(FLASH) + LENGTH(FLASH) ;
 /* Sections */
 SECTIONS
 {
-  /* Interrupt vector table is forced to ISR_RAM, the first 512 bytes of RAM,   */
-  /* must be loaded by ourselves from flash. In general ISR vector need to be   */
-  /* located 512 byte aligned due to Vector Table Offset Register (VTOR)        */
-  /* requirements if VTOR exist on the platform (it exists on Cortex-M4, but    */
-  /* not in Cortex-M0 for example). In a system where we know we are relocating */
-  /* the ISR table to RAM in any case, we dont need to care about where it is   */
-  /* located in flash that much basically. This allows also some interesting    */
-  /* tweaks later. Btw, reference manual says about ISR vector verbatim:        */
-  /* The minimum alignment is 128 words                                         */
+  /* Interrupt vector (ISR) table is forced to ISR_RAM, the first bytes of RAM, */
+  /* must be copied by ourselves from flash. Behaviour is platform-dependent    */
+  /* because some platforms have Vector Table Offset Register (VTOR).           */
+  /*                                                                            */
+  /* Cortex-M0: No VTOR, basically does not need to be aligned                  */
+  /* Cortex-M4: VTOR, so needs to be aligned to ISR vector table size in RAM.   */
+  /*                                                                            */
+  /* BUT when ISR vector table is placed randomly in flash, but always          */
+  /* relocated to a dedicated fully aligned location in RAM, it works always.   */ 
 
   .isr_vector :
   {

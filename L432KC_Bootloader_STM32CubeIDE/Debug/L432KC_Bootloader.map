@@ -557,11 +557,6 @@ Discarded input sections
  .debug_macro   0x0000000000000000      0x122 Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x357 Core/Src/system_stm32l4xx.o
  .debug_macro   0x0000000000000000      0x221 Core/Src/system_stm32l4xx.o
- .text          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
- .data          0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
- .bss           0x0000000000000000        0x0 Core/Startup/fw_anywhere_startup_inline.o
- .ARM.attributes
-                0x0000000000000000       0x20 Core/Startup/fw_anywhere_startup_inline.o
  .text          0x0000000000000000       0x14 Core/Startup/startup_stm32l432kcux.o
  .data          0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
  .bss           0x0000000000000000        0x0 Core/Startup/startup_stm32l432kcux.o
@@ -2529,7 +2524,6 @@ LOAD Core/Src/stm32l4xx_it.o
 LOAD Core/Src/syscalls.o
 LOAD Core/Src/sysmem.o
 LOAD Core/Src/system_stm32l4xx.o
-LOAD Core/Startup/fw_anywhere_startup_inline.o
 LOAD Core/Startup/startup_stm32l432kcux.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o
 LOAD Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o
