@@ -31,14 +31,13 @@ static void MX_TIM7_DeInit(void);
 /* GOT is always in RAM. We need some settings in
  * [project] properties => C/C++ Build => Settings => MCU GCC Compiler => Miscellaneous
  *
- * Basically everything works with this three enabled:
+ * Basically everything works with these four enabled:
+ *
  * -fpic
  * -msingle-pic-base
  * -mpic-register=r9
- *
- * This seem to be actually optional:
- *
  * -mno-pic-data-is-text-relative
+ *
  */
 int main(void)
 {

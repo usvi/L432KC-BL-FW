@@ -97,6 +97,8 @@
                                     									
                                     <listOptionValue builtIn="false" value="-fpic"/>
                                     									
+                                    <listOptionValue builtIn="false" value="-mno-pic-data-is-text-relative"/>
+                                    									
                                     <listOptionValue builtIn="false" value="-mpic-register=r9"/>
                                     									
                                     <listOptionValue builtIn="false" value="-msingle-pic-base"/>
