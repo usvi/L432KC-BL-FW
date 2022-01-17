@@ -1196,7 +1196,7 @@ VectorTableLoopIncrements:
 VectorTableCopyPatchEnd:
 
 
-/* Copy the data segment initializers from flash to SRAM */
+  // Copy the data segment initializers from flash to SRAM.
   ldr r0, =_sdata
  80006d0:	4832      	ldr	r0, [pc, #200]	; (800079c <LoopForever+0x38>)
   ldr r1, =_edata
@@ -1234,7 +1234,7 @@ LoopCopyDataInit:
   bcc CopyDataInit
  80006ea:	d3f9      	bcc.n	80006e0 <CopyDataInit>
 
-/* Zero fill the bss segment. */
+  // Zero fill the bss segment.
   ldr r2, =_sbss
  80006ec:	4a2e      	ldr	r2, [pc, #184]	; (80007a8 <LoopForever+0x44>)
   ldr r4, =_ebss
@@ -1295,14 +1295,14 @@ LoopFillZerobss:
  8000712:	d3ef      	bcc.n	80006f4 <FillZerobss>
 
 
-/* Call the clock system initialization function.*/
+  // Call the clock system initialization function.
     bl  SystemInit
  8000714:	f7ff ff48 	bl	80005a8 <SystemInit>
 
 08000718 <CallPreinitsInit>:
 
 
-// Make our own __libc_init_array
+  // Make our own __libc_init_array
 CallPreinitsInit:
   ldr r7, =gu32FirmwareOffset
  8000718:	4f15      	ldr	r7, [pc, #84]	; (8000770 <LoopForever+0xc>)
